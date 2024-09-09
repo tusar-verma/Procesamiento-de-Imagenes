@@ -74,7 +74,7 @@ def contraste(imagen):
         for j in range(imagen2.shape[1]):
             imagen2[i][j] = transformacion[imagen2[i][j]]
     
-    cv2.imwrite(path_output + "contrasta2.jpg", imagen2)
+    cv2.imwrite(path_output + "contrastado1vez.jpg", imagen2)
     return imagen2
     ###### GARFICO ######
     #Para ver el histograma de la resultante de la transformacion
@@ -90,19 +90,28 @@ def binarizador(img , umbral):
     # hago una mascara de los pixeles que estan por arriba del umbral
     # a los que estan por encima les asigno el nivel de gris 255 y a los que no los dejo en 0 
     imagen2 = ((np.ones(imagen.shape)*umbral)<=img)  *255
-    cv2.imwrite(path_output + "binariza2.jpg", imagen2)
+    cv2.imwrite(path_output + "binarizado.jpg", imagen2)
    # graficar_histograma(imagen2)
    # graficar_histograma(img)
 
 # ejercicio 7
 def comparar(img):
-    graficar_histograma(img)
-    graficar_histograma(contraste(img))
-
+    bucket = histograma(img)
+    plt.bar(np.arange(256), bucket, width=1.0, label="Imagen original")
+    bucket = histograma(contraste(img))
+    plt.bar(np.arange(256), bucket, width=1.0, label="Imagen ecualizada")
+    plt.title("Comparacion histogramas")
+    plt.legend()
+    plt.show()
 # ejercicio 8
 def ecualizarDosVeces(img):
     newImg = contraste(img)
-    return contraste(newImg)
+    newImg2 = contraste(newImg)
+    cv2.imwrite(path_output + "contrastado2veces.jpg", newImg2)
+    bucket = histograma(newImg2)
+    plt.bar(np.arange(256), bucket, width=1.0)
+    plt.title("Histograma de la imagen Galaxy 2 veces contrastada")
+    plt.show()
 
 # ejercicio 9
 def modhistograma(lanmda, gamma, img):
@@ -162,7 +171,7 @@ def exploracion9(imagen):
     plt.show()
 
 
-def tests():
+def ejercicios():
     #Ejercicio1/2
     multiplicar(imagen,2)
     multiplicar(imagen,3)
@@ -174,10 +183,15 @@ def tests():
     graficar_histograma(imagen)
     #Ejercicio5
     contraste(imagen)
-    #Ejercicio6
+    #Ejercicio6 (se usa ub umbral de 102)
     binarizador(imagen,102)
-    
-    #Ejercico9
+    #Ejercicio7
+    comparar(imagen)
+    #Ejercicio8
+    ecualizarDosVeces(imagen)
+    #Al ecualizar 2 veces se muy similar al histograma de la ecualizacion simple
+    #Esto se debe a que ya se sigue la distribución normal acorde a la funcion de probabilidad acumulada
+    #Ejercicio9
     exploracion9(imagen)
 
-tests()
+ejercicios()
