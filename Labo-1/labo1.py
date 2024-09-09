@@ -3,10 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-path_output = "./Labo-1/salida/" 
+path_output = "salida/" 
 
 
-imagen =cv2.imread("Labo-1/Imagenes_para_contraste/binariza2.jpg", cv2.IMREAD_GRAYSCALE)
+imagen =cv2.imread("Imagenes_para_contraste/maxi.jpg", cv2.IMREAD_GRAYSCALE)
 
 # dimension de la imagen
 #print(np.shape(imagen))
@@ -45,8 +45,7 @@ def funAcumulada(imagen):
         for pixel in line:
             bucket[pixel] += 1
     
-    frecuencias = bucket/(imagen.shape[0]*imagen.shape[1])
-    funcAcumulada = np.cumsum(frecuencias)
+    funcAcumulada = np.cumsum(bucket)/(imagen.shape[0]*imagen.shape[1])
     return funcAcumulada
 
 
@@ -139,7 +138,7 @@ def transformar_imagen(imagen, funcAcumTarget):
                
         #print(i, indicemin, diffmin)
         transformacion[i] = indicemin
-
+        print(indicemin)
 
     imagen2 = imagen.copy()
     for i in range(imagen2.shape[0]):
@@ -151,9 +150,9 @@ def transformar_imagen(imagen, funcAcumTarget):
     return imagen2
 
 def exploracion9(imagen):
-    lambdas = [0]
+    lambdas = [3]
     gammas = [0]
-    special_path_output = path_output + "Ejercicio9/"
+    special_path_output = path_output + "amigo-maxi/"
 
     for l in lambdas:
         for g in gammas:
