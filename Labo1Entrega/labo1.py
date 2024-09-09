@@ -126,7 +126,7 @@ def modhistograma(lanmda, gamma, img):
     # hago la matriz bidiagona
     bidiag = np.eye(255, 256) * -1 +  np.diag(np.ones(255) , 1)[:255,:]
     # minimizacion (diapositiva vista en clase)
-    res = np.linalg.solve(np.eye(np.shape(bidiag)[1],np.shape(bidiag)[1]) * (1+lanmda) + gamma*bidiag.T@bidiag, (h0 + (lanmda*u)/256))
+    res = np.linalg.solve(256*(np.eye(np.shape(bidiag)[1],np.shape(bidiag)[1]) * (1+lanmda) + gamma*bidiag.T@bidiag), (256*h0 + (lanmda*u)))
 
     return res
 
@@ -156,7 +156,7 @@ def transformar_imagen(imagen, funcAcumTarget):
 
 def exploracion9(imagen):
     lambdas = [1, 5, 10]
-    gammas = [0, 5, 10]
+    gammas = [0, 5, 1000]
     special_path_output = path_output + "Ejercicio9/"
 
     for l in lambdas:
