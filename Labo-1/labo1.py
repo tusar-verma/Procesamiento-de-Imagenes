@@ -6,7 +6,7 @@ import os
 path_output = "salida/" 
 
 
-imagen =cv2.imread("Imagenes_para_contraste/maxi.jpg", cv2.IMREAD_GRAYSCALE)
+imagen =cv2.imread("./Imagenes_para_contraste/vb.jpg", cv2.IMREAD_GRAYSCALE)
 
 # dimension de la imagen
 #print(np.shape(imagen))
@@ -152,7 +152,7 @@ def transformar_imagen(imagen, funcAcumTarget):
 def exploracion9(imagen):
     lambdas = [3]
     gammas = [0]
-    special_path_output = path_output + "amigo-maxi/"
+    special_path_output = path_output + "Ejercicio9/"
 
     for l in lambdas:
         for g in gammas:
