@@ -108,14 +108,14 @@ def modhistograma(lanmda, gamma, img):
     h0 = histograma(img)
     # lo transformo en un vector columna
     h0 = h0.reshape((h0.size,1))
-    # histograma uniforme
-    u = np.ones(256) * (np.shape(img)[0]*np.shape(img)[1]) /256
+    # histograma uniforme antes de normalizar
+    u = np.ones(256) * (np.shape(img)[0]*np.shape(img)[1]) 
     u = u.reshape((u.size,1))
 
     # hago la matriz bidiagona
     bidiag = np.eye(255, 256) * -1 +  np.diag(np.ones(255) , 1)[:255,:]
     # minimizacion (diapo)
-    res = np.linalg.inv(np.eye(np.shape(bidiag)[1],np.shape(bidiag)[1]) * (1+lanmda) + gamma*bidiag.T@bidiag)  @  (h0 + lanmda*u)
+    res = np.linalg.solve(256*(np.eye(np.shape(bidiag)[1],np.shape(bidiag)[1]) * (1+lanmda) + gamma*bidiag.T@bidiag), (256*h0 + (lanmda*u)))
 
     return res
 
@@ -125,8 +125,8 @@ def transformar_imagen(imagen, funcAcumTarget):
 
     for i in range(funcAcumulada.size):
         w = funcAcumulada[i]
-        diffmin = 2
-        indicemin = 0
+        diffmin = 3
+        indicemin = 255
         for j in range(funcAcumTarget.size):
             wn = funcAcumTarget[j]
             diff = wn - w
@@ -136,15 +136,12 @@ def transformar_imagen(imagen, funcAcumTarget):
                 diffmin = diff
                 indicemin = j
                
-        #print(i, indicemin, diffmin)
         transformacion[i] = indicemin
         print(indicemin)
 
     imagen2 = imagen.copy()
     for i in range(imagen2.shape[0]):
         for j in range(imagen2.shape[1]):
-            #if (imagen2[i][j] != transformacion[imagen2[i][j]]):
-            #    print("-- ",i,j)
             imagen2[i][j] = transformacion[imagen2[i][j]]
 
     return imagen2
@@ -152,7 +149,7 @@ def transformar_imagen(imagen, funcAcumTarget):
 def exploracion9(imagen):
     lambdas = [3]
     gammas = [0]
-    special_path_output = path_output + "Ejercicio9/"
+    special_path_output = path_output + "amigo-maxi/"
 
     for l in lambdas:
         for g in gammas:
@@ -166,17 +163,17 @@ def exploracion9(imagen):
 
 
 def tests():
-    multiplicar(imagen,2)
-    multiplicar(imagen,3)
-    multiplicar(imagen,4)
-    multiplicar(imagen,255)
+   # multiplicar(imagen,2)
+   # multiplicar(imagen,3)
+   # multiplicar(imagen,4)
+   # multiplicar(imagen,255)
     
-    negativo(imagen)
+   # negativo(imagen)
 
-    graficar_histograma(imagen)
+   # graficar_histograma(imagen)
 
     contraste(imagen)
-    binarizador(imagen,102)
+   # binarizador(imagen,102)
     
-#tests()
-exploracion9(imagen)
+tests()
+#exploracion9(imagen)
