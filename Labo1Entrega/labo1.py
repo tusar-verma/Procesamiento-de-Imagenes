@@ -89,7 +89,7 @@ def binarizador(img , umbral):
 
     # hago una mascara de los pixeles que estan por arriba del umbral
     # a los que estan por encima les asigno el nivel de gris 255 y a los que no los dejo en 0 
-    imagen2 = ((np.ones(imagen.shape)*umbral)<=img)  *255
+    imagen2 = ((np.ones(img.shape)*umbral)<=img)  *255
     cv2.imwrite(path_output + "binarizado.jpg", imagen2)
    # graficar_histograma(imagen2)
    # graficar_histograma(img)
