@@ -6,7 +6,7 @@ import os
 path_output = "salida/" 
 
 
-imagen =cv2.imread("Imagenes_para_contraste/maxi.jpg", cv2.IMREAD_GRAYSCALE)
+imagen =cv2.imread("./Imagenes_para_contraste/vb.jpg", cv2.IMREAD_GRAYSCALE)
 
 # dimension de la imagen
 #print(np.shape(imagen))
@@ -148,7 +148,7 @@ def transformar_imagen(imagen, funcAcumTarget):
 
 def exploracion9(imagen):
     lambdas = [3]
-    gammas = [3]
+    gammas = [0]
     special_path_output = path_output + "amigo-maxi/"
 
     for l in lambdas:
@@ -163,17 +163,17 @@ def exploracion9(imagen):
 
 
 def tests():
-    multiplicar(imagen,2)
-    multiplicar(imagen,3)
-    multiplicar(imagen,4)
-    multiplicar(imagen,255)
+   # multiplicar(imagen,2)
+   # multiplicar(imagen,3)
+   # multiplicar(imagen,4)
+   # multiplicar(imagen,255)
     
-    negativo(imagen)
+   # negativo(imagen)
 
-    graficar_histograma(imagen)
+   # graficar_histograma(imagen)
 
     contraste(imagen)
-    binarizador(imagen,102)
+   # binarizador(imagen,102)
     
-#tests()
-exploracion9(imagen)
+tests()
+#exploracion9(imagen)
