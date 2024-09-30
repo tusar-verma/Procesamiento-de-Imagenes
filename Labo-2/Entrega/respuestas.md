@@ -1,3 +1,14 @@
+---
+title: "Procesamiento de imagenes: filtros"
+author: "Tusar Verma, LU: 309/22"
+geometry: margin=2cm
+output: pdf_document
+---
+
+
+
+$\pagebreak$
+
 # 1
 ## a
 
@@ -135,8 +146,7 @@ $(h*x)(5)= 0$
 
 ## d
 
-$
-x(n,m) = \left[\begin{matrix}
+$x(n,m) = \left[\begin{matrix}
     1 & 1 & 1\\
     1 & 1 & 1\\
     1 & 1 & 1\\
@@ -147,10 +157,8 @@ x_{padding}(n, m) = \left[\begin{matrix}
     0 & 1 & 1 & 1 & 0\\
     0 & 1 & 1 & 1 & 0\\
     0 & 0 & 0 & 0 & 0\\
-\end{matrix}\right]\\
-$
-$
-h(n,m) = \left[ 
+\end{matrix}\right]\\$
+$h(n,m) = \left[ 
 \begin{matrix}
     1 & 1\\
     *1 & 1 \\
@@ -162,15 +170,12 @@ h_{rotado}(n,m) = \left[
     1 & 1  \\
 \end{matrix}
 \right] \\ \text{ donde * marca el centro}
-\\
-$
-$
-conv(n,m) = \left[\begin{matrix}
+\\$
+$conv(n,m) = \left[\begin{matrix}
     2 & 4 & 4\\
     2 & 4 & 4\\
     1 & 2 & 2\\
-\end{matrix}\right]\\
-$
+\end{matrix}\right]\\$
 
 
 # 2
@@ -196,28 +201,23 @@ h_{rotado}(n,m) = \left[
     -1 & 4 & -1 \\
     1 & -1 & 0 \\
 \end{matrix}
-\right]
-$$
+\right]$$
 $$x_{padding}(n,m) = \left[\begin{matrix}
     0 & 0 & 0 & 0 & 0 \\
     0 & 1 & 4 & 1 & 0 \\
     0 & 2 & 5 & 3 & 0 \\
     0 & 0 & 0 & 0 & 0 \\
-\end{matrix}\right]\\
-$$
+\end{matrix}\right]\\$$
 
-$$
-conv(n,m) = \left[ 
+$$conv(n,m) = \left[ 
 \begin{matrix}
   -2 & 11 & 2 \\    
   2 & 11 & 6\\    
 \end{matrix}
-\right]
-$$
+\right]$$
 
 ### ii
-$$
-h(n,m) = \left[ 
+$$h(n,m) = \left[ 
 \begin{matrix}
     1 & 2 & 3 \\
 \end{matrix}
@@ -226,28 +226,23 @@ h_{rotado}(n,m) = \left[
 \begin{matrix}
     3 & 2 & 1 \\
 \end{matrix}
-\right]
-$$
+\right]$$
 
 
 $$x_{padding}(n,m) = \left[\begin{matrix}
     0 & 1 & 4 & 1 & 0 \\
     0 & 2 & 5 & 3 & 0 \\
-\end{matrix}\right]\\
-$$
+\end{matrix}\right]\\$$
 
-$$
-conv(n,m) = \left[ 
+$$conv(n,m) = \left[ 
 \begin{matrix}
    6 & 12 & 14 \\    
    9 & 19 & 21\\    
 \end{matrix}
-\right]
-$$
+\right]$$
 
 ### iii
-$$
-h(n,m) = \left[ 
+$$h(n,m) = \left[ 
 \begin{matrix}
     -2\\
     3\\
@@ -260,8 +255,7 @@ h_{rotado}(n,m) = \left[
     3\\
     -2
 \end{matrix}
-\right]
-$$
+\right]$$
 
 
 $$x_{padding}(n,m) = \left[\begin{matrix}
@@ -269,17 +263,14 @@ $$x_{padding}(n,m) = \left[\begin{matrix}
     1 & 4 & 1 \\
     2 & 5 & 3 \\
     0 & 0 & 0 \\
-\end{matrix}\right]\\
-$$
+\end{matrix}\right]\\$$
 
-$$
-conv(n,m) = \left[ 
+$$conv(n,m) = \left[ 
 \begin{matrix}
     -1 & 2 & -3 \\    
     5 & 11 & 8 \\    
 \end{matrix}
-\right]
-$$
+\right]$$
 
 ## b
 
@@ -351,8 +342,6 @@ path_output = "./salida/"
 
 imagen =cv2.imread("./cameraman.jpg", cv2.IMREAD_GRAYSCALE)
 
-
-
 def filtro_media(imagen, tam_filtro):
     vector_filtro = np.ones(tam_filtro).reshape(tam_filtro, 1) 
     
@@ -396,7 +385,7 @@ def filtro_gauss(imagen, tam, sigma):
     res = res / factor_normalizacion
     
     cv2.imwrite(path_output + "gauss_tam" + str(tam) + "_sigma_" + str(sigma) + "_separado" + ".jpg", res)
-    
+    return res
     
 # tipo 
 # 0: min
@@ -449,3 +438,26 @@ def test():
 
 
 # 5
+
+```python
+def unsharp_mask(imagen, a, sigma):
+    imagen_padding = np.pad(imagen, [(0, 2),(0, 2)])
+    gauss_img = ejercicio4.filtro_gauss(imagen, 3, sigma)
+    
+    mask = imagen_padding - gauss_img
+    
+    res = imagen_padding + a * mask
+    
+    cv2.imwrite(path_output + "unsharp_masking_sigma_" + str(sigma) + "_factor_" + str(a) + ".jpg", res)
+    
+def test():    
+    unsharp_mask(imagen, 1, 1)
+    unsharp_mask(imagen, 1, 2.5)
+    unsharp_mask(imagen, 1, 10)
+    unsharp_mask(imagen, 1, 20)
+    unsharp_mask(imagen, 2.5, 10)
+    unsharp_mask(imagen, 2.5, 15)
+    unsharp_mask(imagen, 5, 2.5)
+    unsharp_mask(imagen, 10, 5)
+    unsharp_mask(imagen, 10, 10)
+```

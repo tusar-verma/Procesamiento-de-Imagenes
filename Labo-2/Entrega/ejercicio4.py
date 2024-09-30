@@ -53,6 +53,7 @@ def filtro_gauss(imagen, tam, sigma):
     res = res / factor_normalizacion
     
     cv2.imwrite(path_output + "gauss_tam" + str(tam) + "_sigma_" + str(sigma) + "_separado" + ".jpg", res)
+    return res
     
     
 # tipo 
