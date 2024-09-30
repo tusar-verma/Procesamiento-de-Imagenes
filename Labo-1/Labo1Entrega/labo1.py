@@ -89,10 +89,17 @@ def binarizador(img , umbral):
 
     # hago una mascara de los pixeles que estan por arriba del umbral
     # a los que estan por encima les asigno el nivel de gris 255 y a los que no los dejo en 0 
+<<<<<<< HEAD:Labo1Entrega/labo1.py
+    imagen2 = ((np.ones(img.shape)*umbral)<=img)  *255
+    cv2.imwrite(path_output + "binarizado.jpg", imagen2)
+   # graficar_histograma(imagen2)
+   # graficar_histograma(img)
+=======
     imagen2 = ((np.ones(imagen.shape)*umbral)<=img)  *255
     cv2.imwrite(path_output + "binariza2.jpg", imagen2)
     graficar_histograma(imagen2, "Histograma de Galaxy binarizada con umbral "+str(umbral))
     graficar_histograma(img, "Histograma Galaxy original")
+>>>>>>> 76f98179e81baa007280732ba8749244b8975906:Labo-1/Labo1Entrega/labo1.py
 
 # ejercicio 7
 def comparar(img):
