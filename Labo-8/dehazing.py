@@ -24,9 +24,9 @@ def distancias(imagen):
 
     canalv = imagenhsv[:,:,2]
     canals = imagenhsv[:,:,1]
-    epsilon = np.random.normal(0,sigma,imagen.shape)
-
-    distancias = tita0 + tita1*canalv + tita2*canals + epsilon
+    epsilon = np.random.normal(0,sigma,canalv.shape)
+    
+    distancias = tita0 + tita1*canalv + tita2*canals + 0 #epsilon = 0 paratodo punto
 
     distanciasFiltradas = ndimage.minimum_filter(distancias,size=r)
 
@@ -36,7 +36,8 @@ def dehaze(imagen):
     pass
 
 distanciaImagenPruebaColor = distancias(imagenPruebaColor)
-
-axs, fig = plt.subplots(1,3, figsize=(10,10))
+fig, axs = plt.subplots(1,2, figsize=(10,10))
 axs[0].imshow(imagenPruebaColor)
-axs[1].imshow(distanciaImagenPruebaColor)
+axs[1].imshow(distanciaImagenPruebaColor, cmap="inferno")
+
+plt.show()
