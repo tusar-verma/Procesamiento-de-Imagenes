@@ -12,7 +12,7 @@ import os
 import PIL.Image as pill
 
 #imagenFilename = os.path.join("./Imagenes_de_pruebas/standard_test_images/", "niebla0.png")
-imagenPruebaColorA = pill.open("./Imagenes_de_pruebas/standard_test_images/maxi.webp")
+imagenPruebaColorA = pill.open("./Imagenes_de_pruebas/standard_test_images/niebla0.png")
 imagenPruebaColor = img_as_float(np.asarray(imagenPruebaColorA.convert('RGB')))
 
 def distancias(imagen):
