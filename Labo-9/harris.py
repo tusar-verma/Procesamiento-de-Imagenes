@@ -47,17 +47,24 @@ def harrysVentana(centro:tuple[int,int], radio:int, Ix: np.typing.NDArray[float]
         [sumadx2, sumadxdy],
         [sumadxdy, sumady2]
     ])
-    R = np.linalg.det(mres) - k*np.trace(mres)
+    R = np.linalg.det(mres) - k*np.trace(mres)**2
     return R
 
 def Harrys(imagen, puntosDeInteres, umbral):
     #Tal vez se puede usar vectorize
     esquinas = []
     valores = []
+    todoVal = []
     dx, dy = gradiente(imagen)
     for p in puntosDeInteres:
         val = harrysVentana(p,5,dx,dy)
-        if val >= umbral:
+        todoVal.append(val)
+    todoVal = np.array(todoVal)
+    umbral = 0.01*np.max(todoVal)
+    for i in range(len(puntosDeInteres)):
+        val = todoVal[i]
+        p = puntosDeInteres[i]
+        if val > umbral:
             esquinas.append(p)
             valores.append(val)
     
@@ -65,11 +72,11 @@ def Harrys(imagen, puntosDeInteres, umbral):
     fil, col = zip(*esquinas)
     im2 = np.zeros(imagen.shape)
     im2[fil,col] = valores
-    esquinas = peak_local_max(im2,min_distance=5)
+    esquinas = peak_local_max(im2,min_distance=2)
     return esquinas
 
 def procesadoHarrys(imagen, umbral):
-    bordes = feature.canny(imagen, sigma=3)
+    bordes = feature.canny(imagen, sigma=1)
     puntosDeInteres = list(zip(*np.where(bordes == 1)))
     esquinas = Harrys(imagen, puntosDeInteres, umbral)
     return esquinas
