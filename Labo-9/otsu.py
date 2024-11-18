@@ -4,7 +4,7 @@ import cv2 as cv
 
 rice_image = cv.imread("Imagenes/rice.png", cv.IMREAD_GRAYSCALE)
 
-def otsu(imagen):
+def Otsu(imagen):
     #calculo el normalized histogram
     histograma = cv.calcHist([imagen],[0],None,[256],[0,256])
     histograma = histograma / (imagen.shape[0] * imagen.shape[1])
@@ -59,10 +59,11 @@ def otsu(imagen):
             else:
                 imagen_segmentada[x , y] = 0
 
-    return imagen_segmentada
+    return imagen_segmentada,optimo_k
 
 ret,th1 = cv.threshold(rice_image,127,255,cv.THRESH_BINARY)
 
-cv.imwrite("arroz_segmentado_de_cv2.png",th1)
-cv.imwrite("arroz_segmentado.png",otsu(rice_image))
+#cv.imwrite("arroz_segmentado_de_cv2.png",th1)
+resImage,k = Otsu(rice_image)
+cv.imwrite("arroz_segmentado.png",resImage)
 
