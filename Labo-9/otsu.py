@@ -25,13 +25,13 @@ def Otsu(imagen):
     M[0] = 0
 
     for i in range(1,histograma.shape[0]):
-        M[i] = M[i-1] + (i * histograma[i])
+        M[i] = (M[i-1] + (i * histograma[i]))[0]
     
     # Media global
     M_g = M[histograma.shape[0] - 1]
 
     # between-class variance
-    var_for_k = np.zeros(histograma.shape[0])
+    var_for_k = np.zeros(histograma.shape[0], dtype=int)
 
     for i in range(histograma.shape[0]):
         
@@ -39,12 +39,9 @@ def Otsu(imagen):
         #Se calcula varianza por cada valor de intensidad
         if(P_1[i] != 0 and P_1[i] < 0.999999999999999):
     
-            var = (np.pow((M_g * P_1[i]) - M[i],2)) / (P_1[i]*(1-P_1[i]))
-
+            var = ((np.power((M_g * P_1[i]) - M[i],2)) / (P_1[i]*(1-P_1[i])))[0]
         var_for_k[i] = var
 
-    max_var = np.max(var_for_k)
-    
     # optimo umbral k
     optimo_k = np.argmax(var_for_k)
     
@@ -62,7 +59,9 @@ def Otsu(imagen):
 
 ret,th1 = cv.threshold(rice_image,127,255,cv.THRESH_BINARY)
 
-#cv.imwrite("arroz_segmentado_de_cv2.png",th1)
+#arroz segmentado de OpenCV
+cv.imwrite("arroz_segmentado_de_cv2.png",th1)
 resImage,k = Otsu(rice_image)
+#Arroz segmentado propio
 cv.imwrite("arroz_segmentado.png",resImage)
 
