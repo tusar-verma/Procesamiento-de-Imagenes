@@ -8,6 +8,7 @@ H02 = cv.imread("Imagenes/H02.bmp", cv.IMREAD_GRAYSCALE)
 H03 = cv.imread("Imagenes/H03.bmp", cv.IMREAD_GRAYSCALE)
 H04 = cv.imread("Imagenes/H04.bmp", cv.IMREAD_GRAYSCALE)
 H05 = cv.imread("Imagenes/H05.bmp", cv.IMREAD_GRAYSCALE)
+path_res = "./resultados_thresh/"
 
 text_image = cv.imread("Imagenes/shaded_text.tif", cv.IMREAD_GRAYSCALE)
 sine_text_image = cv.imread("Imagenes/sine_shaded_text.tif", cv.IMREAD_GRAYSCALE)
@@ -56,13 +57,13 @@ def variableTresholdingBasedOnMovingAverages(image, n=5,c=0.5):
 
 
             
-cv.imwrite("H01_segmentado.png",variableTresholdingBasedOnMovingAverages(H01,60,0.9))
-cv.imwrite("H02_segmentado.png",variableTresholdingBasedOnMovingAverages(H02,60,0.9))
-cv.imwrite("H03_segmentado.png",variableTresholdingBasedOnMovingAverages(H03,60,0.9))
-cv.imwrite("H04_segmentado.png",variableTresholdingBasedOnMovingAverages(H04,60,0.9))
-cv.imwrite("H05_segmentado.png",variableTresholdingBasedOnMovingAverages(H05,60,0.9))
+cv.imwrite(path_res + "H01_segmentado.png",variableTresholdingBasedOnMovingAverages(H01,60,0.9))
+cv.imwrite(path_res + "H02_segmentado.png",variableTresholdingBasedOnMovingAverages(H02,60,0.9))
+cv.imwrite(path_res + "H03_segmentado.png",variableTresholdingBasedOnMovingAverages(H03,60,0.9))
+cv.imwrite(path_res + "H04_segmentado.png",variableTresholdingBasedOnMovingAverages(H04,60,0.9))
+cv.imwrite(path_res + "H05_segmentado.png",variableTresholdingBasedOnMovingAverages(H05,60,0.9))
 
-cv.imwrite("shaded_text_segmentado.png",variableTresholdingBasedOnMovingAverages(text_image,20))
-cv.imwrite("sine_shaded_text_segmentado.png",variableTresholdingBasedOnMovingAverages(sine_text_image,20))
+cv.imwrite(path_res + "shaded_text_segmentado.png",variableTresholdingBasedOnMovingAverages(text_image,20))
+cv.imwrite(path_res + "sine_shaded_text_segmentado.png",variableTresholdingBasedOnMovingAverages(sine_text_image,20))
 
 
