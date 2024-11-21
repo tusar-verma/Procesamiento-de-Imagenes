@@ -19,7 +19,7 @@ def Otsu(imagen):
     for i in range(1 , histograma.shape[0]):
         P_1[i] = P_1[i-1] + histograma[i]
         
-    # comulative means
+    # En M se guardan las medias acumuladas
     M = np.zeros(histograma.shape[0])
 
     M[0] = 0
@@ -27,17 +27,16 @@ def Otsu(imagen):
     for i in range(1,histograma.shape[0]):
         M[i] = M[i-1] + (i * histograma[i])
     
-    # global mean
+    # Media global
     M_g = M[histograma.shape[0] - 1]
 
     # between-class variance
-
     var_for_k = np.zeros(histograma.shape[0])
 
     for i in range(histograma.shape[0]):
         
         var = 0
-
+        #Se calcula varianza por cada valor de intensidad
         if(P_1[i] != 0 and P_1[i] < 0.999999999999999):
     
             var = (np.pow((M_g * P_1[i]) - M[i],2)) / (P_1[i]*(1-P_1[i]))
@@ -48,8 +47,8 @@ def Otsu(imagen):
     
     # optimo umbral k
     optimo_k = np.argmax(var_for_k)
-    #segmentar
-
+    
+    #Se segmenta la imagen, según el threshld óptimo
     imagen_segmentada = imagen.copy()
 
     for x in range(imagen_segmentada.shape[0]):
