@@ -11,10 +11,10 @@ import numpy as np
 import os
 import PIL.Image as pill
 
-#imagenFilename = os.path.join("./Imagenes_de_pruebas/standard_test_images/", "niebla0.png")
 imagenPruebaColorA = pill.open("./Imagenes_de_pruebas/standard_test_images/niebla0.png")
 imagenPruebaColor = img_as_float(np.asarray(imagenPruebaColorA.convert('RGB')))
 
+#Se calculan las distancias con el método propuesto
 def distancias(imagen):
     imagenhsv = rgb2hsv(imagen)
     r = 15
@@ -27,8 +27,10 @@ def distancias(imagen):
     canals = imagenhsv[:,:,1]
     epsilon = np.random.normal(0,sigma,canalv.shape)
     
-    distancias = tita0 + tita1*canalv + tita2*canals + epsilon #epsilon = 0 paratodo punto
+    #Calculo de distancia
+    distancias = tita0 + tita1*canalv + tita2*canals + epsilon # Con epsilon=0 se ve con menos ruido en las distancias
 
+    #Filtro para evitar artefactos con colores blancos que se pueden erroneamente interpretar como distantes
     distanciasFiltradas = ndimage.minimum_filter(distancias,size=r)
 
     return distanciasFiltradas
@@ -41,7 +43,7 @@ def dehaze(imagen):
     mapaDistancias = distancias(imagen)
     imagenhsv = rgb2hsv(imagen)
     
-    #obtenemos el A
+    #Obtenemos el A que resulta de tomar dentro del 0.1% pixeles más brillantes en el mapa de distancias, aquel pixel con mayor intensidad como A
     listaImagenv = imagenhsv[:,:,2].flatten()
     listaDistancias = mapaDistancias.flatten()
     #Obtenemos los indices de los valores en listaDistancias ordenados de mayor a menor filtrando al percentil 0.1
@@ -58,7 +60,7 @@ def dehaze(imagen):
 
     A = imagenhsv[:,:,2][coordenadaspixel] 
 
-    #reconstruimos la imagen sin niebla
+    #Reconstruimos la imagen sin niebla
     mA = np.ones((m,n))*A
     mt = np.clip(np.exp(-beta*mapaDistancias),0.1,0.9)
     J = imagen.copy()
@@ -71,11 +73,11 @@ def dehaze(imagen):
 
 distanciaImagenPruebaColor = distancias(imagenPruebaColor)
 dehazedImagenPruebaColor = dehaze(imagenPruebaColor)
-#io.imsave("./original.jpg", imagenPruebaColor)
-#io.imsave("./distancias.jpg", distanciaImagenPruebaColor)
-#io.imsave("./dehazed.jpg", dehazedImagenPruebaColor)
 fig, axs = plt.subplots(1,3, figsize=(10,10))
+#Imagen original
 axs[0].imshow(imagenPruebaColor)
+#Mapa de distancias
 axs[1].imshow(distanciaImagenPruebaColor, cmap="inferno")
+#Imagen sin niebla
 axs[2].imshow(dehazedImagenPruebaColor)
 plt.show()
