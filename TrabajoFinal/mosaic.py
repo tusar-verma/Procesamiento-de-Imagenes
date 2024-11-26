@@ -56,8 +56,9 @@ def ransac():
 
     while(cantConsistentes > minConsistentes and iter < maxIter):
         #Se seleccionan 4 puntos y se obtiene la homografía asociada
-        puntosPsel = np.array([])
-        puntosQsel = np.array([])
+        randInd = np.random.randint(puntosP.size, size = 4) 
+        puntosPsel = puntosP[randInd]
+        puntosQsel = puntosQ[randInd]
 
         H = getHomography(puntosPsel, puntosQsel)
         
