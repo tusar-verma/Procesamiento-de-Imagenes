@@ -39,10 +39,10 @@ def getHomography(puntosP, puntosQ):
 #Retorna pares de puntos (2d) estimados por el producto de H por p
 def productHomography(H, p):
     puntosP3D = np.ones((3,p.size))
-    puntosP3D[:1,:] = p.T
+    puntosP3D[:2,:] = p.T
     puntosQEstimados3D = H@puntosP3D
-        
-    puntosQEstimados = puntosQEstimados3D[:1,:]
+
+    puntosQEstimados = puntosQEstimados3D[:1,:]/puntosQEstimados3D[2,:]
     puntosQEstimados = puntosQEstimados.T
     return puntosQEstimados
 
