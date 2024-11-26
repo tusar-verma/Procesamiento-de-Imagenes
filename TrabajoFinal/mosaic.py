@@ -35,6 +35,17 @@ def getHomography(puntosP, puntosQ):
 
     return H
 
+#Recibe matriz Homográfica H y lista de puntos p (2d)
+#Retorna pares de puntos (2d) estimados por el producto de H por p
+def productHomography(H, p):
+    puntosP3D = np.ones((3,p.size))
+    puntosP3D[:1,:] = p.T
+    puntosQEstimados3D = H@puntosP3D
+        
+    puntosQEstimados = puntosQEstimados3D[:1,:]
+    puntosQEstimados = puntosQEstimados.T
+    return puntosQEstimados
+
 def ransac():
     #Detección esquinas
     esquinas = []
@@ -64,15 +75,15 @@ def ransac():
         H = getHomography(puntosPsel, puntosQsel)
         
         #Se obtienen los puntos Q dados por P a traves de H
-        puntosQEstimados = puntosP@H.T
-        
+        puntosQEstimados = productHomography(H, puntosP)
+
         #Se calcula la cantidad de puntos considerados consistente con la tolerancia impuesta
         cantConsistentes = np.sum(np.abs(puntosQEstimados - puntosQ) < tolerancia)
 
         iter += 1
     
     #Puntos Q estimados con el último H computado
-    puntosQEstimados = puntosP@H.T
+    puntosQEstimados = productHomography(H, puntosP)
     
     #Indices de puntos consistenes con el H
     indConsistentes = np.nonzero(np.abs(puntosQEstimados - puntosQ) < tolerancia)
