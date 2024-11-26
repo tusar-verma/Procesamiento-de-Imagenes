@@ -20,13 +20,14 @@ def getHomography(puntosP, puntosQ):
         B.append(f2)
     B = np.array(B)
 
-    #Descomponsición SVD de B
+    #Descomponsición SVD de B, B=UDVt
     U, d, Vt = np.linalg.svd(B)
 
     #Buscamos el indice correspondiente al menor elemento de d 
     indMin = np.argmin(d)
 
-    #Este indice corresponde a la mejor solución de norma 1  del sistema
+    #Este indice corresponde a la mejor solución de norma 1 del sistema
+    #Así se busca el autovector de AtA=V(D^2)Vt (D^2 es abuso de notación) tal que su autovalor asociado sea lo más cercano posible a 0
     h = Vt[indMin]
 
     #Se recupera la matriz
