@@ -42,7 +42,7 @@ def productHomography(H, p):
     puntosP3D[:2,:] = p.T
     puntosQEstimados3D = H@puntosP3D
 
-    puntosQEstimados = puntosQEstimados3D[:1,:]/puntosQEstimados3D[2,:]
+    puntosQEstimados = puntosQEstimados3D[:2,:]/puntosQEstimados3D[2,:]
     puntosQEstimados = puntosQEstimados.T
     return puntosQEstimados
 
