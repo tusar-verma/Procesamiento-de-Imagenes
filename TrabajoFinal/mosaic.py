@@ -96,3 +96,23 @@ def ransac():
     Hres = getHomography(puntosPConsistentes,puntosQConsistentes)
     
     return Hres
+
+#Mira coincidencias entre dos imagenes en sus canales de color (RGB), desde el origen
+def dice(imagen1, imagen2):
+    m1 = imagen1.shape[0]
+    n1 = imagen1.shape[1]
+    m2 = imagen2.shape[0]
+    n2 = imagen2.shape[1]
+
+    M = max(m1,m2)
+    N = max(n1,n2)
+    
+    im1padd = -np.ones((M,N,3))
+    im2padd = -2*np.ones((M,N,3))
+
+    im1padd[:m1,:n1,:] = imagen1
+    im2padd[:m1,:n1,:] = imagen2
+
+    rice = 2*np.sum(im1padd==im2padd)/(m1*n1 + m2*n2)
+
+    return rice
