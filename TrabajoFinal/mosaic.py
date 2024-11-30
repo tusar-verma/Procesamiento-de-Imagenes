@@ -111,7 +111,7 @@ def dice(imagen1, imagen2):
     im2padd = -2*np.ones((M,N,3))
 
     im1padd[:m1,:n1,:] = imagen1
-    im2padd[:m1,:n1,:] = imagen2
+    im2padd[:m2,:n2,:] = imagen2
 
     dicecoeff = 2*np.sum(im1padd==im2padd)/(3*m1*n1 + 3*m2*n2)
 
