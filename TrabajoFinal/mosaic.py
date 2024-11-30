@@ -46,6 +46,46 @@ def productHomography(H, p):
     puntosQEstimados = puntosQEstimados.T
     return puntosQEstimados
 
+#Devuelva una array H donde H[i] = [x,y] I[x,y] es una esquina
+def obtener_esquinas(imagen):
+
+    harris =  cv.cornerHarris(imagen,10,3,0.04)
+    harris = harris>(0.01*np.max(harris))
+    
+    esquinas = np.array([[0,0]])
+    
+    for x in range(imagen.shape[0]):
+        for y in range(imagen.shape[1]):
+            if(harris[x,y]):
+                esquinas = np.append(esquinas,[[x,y]],0)
+
+    esquinas = np.delete(esquinas,0,0)
+    return esquinas
+
+def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
+
+    puntos_con_mayor_corr = np.array([[0,0]])
+
+    for i in range(esquinas_p.shape):
+        for j in range(esquinas_q.shape):
+            promedio_p = promedio(esquinas_p[i],imagen_p)
+            promedio_q = promedio(esquinas_q[j],imagen_q)
+
+            sum_1 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]+1] - promedio_p) * (imagen_q[esquinas_q[i,0]+1,esquinas_q[i,1]+1] - promedio_q)         
+            sum_2 = (imagen_p[esquinas_p[i,0],esquinas_p[i,1]+1] - promedio_p)   * (imagen_q[esquinas_q[i,0],esquinas_q[i,1]+1] - promedio_q)    
+            sum_3 = (imagen_p[esquinas_p[i,0]-1,esquinas_p[i,1]+1] - promedio_p) * (imagen_q[esquinas_q[i,0]-1,esquinas_q[i,1]+1] - promedio_q)
+            sum_4 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]] - promedio_p)   * (imagen_q[esquinas_q[i,0]+1,esquinas_q[i,1]] - promedio_q)
+            sum_5 = (imagen_p[esquinas_p[i,0],esquinas_p[i,1]] - promedio_p)     * (imagen_q[esquinas_q[i,0],esquinas_q[i,1]] - promedio_q)
+            sum_6 = (imagen_p[esquinas_p[i,0]-1,esquinas_p[i,1]] - promedio_p)   * (imagen_q[esquinas_q[i,0]-1,esquinas_q[i,1]] - promedio_q)
+            sum_7 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]-1] - promedio_p) * (imagen_q[esquinas_q[i,0]+1,esquinas_q[i,1]-1] - promedio_q)
+            sum_8 = (imagen_p[esquinas_p[i,0],esquinas_p[i,1]-1] - promedio_p)   * (imagen_q[esquinas_q[i,0],esquinas_q[i,1]-1] - promedio_q)
+            sum_9 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]-1] - promedio_p) * (imagen_q[esquinas_q[i,0]-1,esquinas_q[i,1]-1] - promedio_q)
+
+            sum = sum_1 + sum_2 + sum_3 + sum_4 + sum_5 + sum_6 + sum_7 + sum_8 + sum_9 
+
+            
+    return
+
 def ransac():
     #Detección esquinas
     esquinas = []
