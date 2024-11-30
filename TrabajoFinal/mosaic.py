@@ -86,7 +86,7 @@ def ransac():
     puntosQEstimados = productHomography(H, puntosP)
     
     #Indices de puntos consistenes con el H
-    indConsistentes = np.nonzero(np.abs(puntosQEstimados - puntosQ) < tolerancia)
+    indConsistentes = np.nonzero(np.linalg.norm(puntosQEstimados - puntosQ, ord=2, axis=1) < tolerancia)
 
     #Se recuperan puntos consistentes con el último H computado
     puntosPConsistentes = puntosP[indConsistentes]
