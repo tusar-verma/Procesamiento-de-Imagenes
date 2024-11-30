@@ -78,7 +78,7 @@ def ransac():
         puntosQEstimados = productHomography(H, puntosP)
 
         #Se calcula la cantidad de puntos considerados consistente con la tolerancia impuesta
-        cantConsistentes = np.sum(np.abs(puntosQEstimados - puntosQ) < tolerancia)
+        cantConsistentes = np.sum(np.norm(puntosQEstimados - puntosQ, ord=2, axis=1) < tolerancia)
 
         iter += 1
     
