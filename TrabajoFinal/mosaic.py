@@ -58,7 +58,7 @@ def ransac():
     puntosP = np.array([])
     puntosQ = np.array([])
 
-    tolerancia = 10**(-3) #Toletancia con la que se considera que una Homografía es consistente para un par de puntos
+    tolerancia = 10**(-3) #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
     minConsistentes = 0.8*esquinas.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**3 #Cantidad máxima de iteraciones
 
