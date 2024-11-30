@@ -113,6 +113,6 @@ def dice(imagen1, imagen2):
     im1padd[:m1,:n1,:] = imagen1
     im2padd[:m1,:n1,:] = imagen2
 
-    rice = 2*np.sum(im1padd==im2padd)/(3*m1*n1 + 3*m2*n2)
+    dicecoeff = 2*np.sum(im1padd==im2padd)/(3*m1*n1 + 3*m2*n2)
 
-    return rice
+    return dicecoeff
