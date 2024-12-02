@@ -132,6 +132,10 @@ def ransac(imagen1, imagen2):
     puntosP = esquinasFiltradas[:,0]
     puntosQ = esquinasFiltradas[:,1]
 
+    ##Esta parte la pueden comentar para avanzar con W&B
+    # cvHomography = cv.findHomography(puntosP,puntosQ,cv.RANSAC,10,maxIters = 10**5)[0]
+    # print("Homografia OpenCv-------------")
+    # print(cvHomography)
     tolerancia = 10 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
     minConsistentes = 0.12*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**5 #Cantidad máxima de iteraciones
