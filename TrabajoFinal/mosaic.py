@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
-
+import harris as h
+from skimage import feature
 #Se busca resolver Bh = 0, si no se puede se busca minimizar ||Bh||^2
 #Imponemos que ||h|| = 1, se elimina así un grado de libertad
 
@@ -48,43 +49,61 @@ def productHomography(H, p):
 
 #Devuelva una array H donde H[i] = [x,y] I[x,y] es una esquina
 def obtener_esquinas(imagen):
-
-    harris =  cv.cornerHarris(imagen,10,3,0.04)
-    harris = harris>(0.01*np.max(harris))
-    
-    esquinas = np.array([[0,0]])
-    
-    for x in range(imagen.shape[0]):
-        for y in range(imagen.shape[1]):
-            if(harris[x,y]):
-                esquinas = np.append(esquinas,[[x,y]],0)
-
-    esquinas = np.delete(esquinas,0,0)
+    bordes = feature.canny(imagen, sigma=3)
+    puntosDeInteres = list(zip(*np.where(bordes == 1)))
+    esquinas = h.Harrys(imagen,puntosDeInteres,0.001)
     return esquinas
+
+def promedio(punto , imagen):
+
+    ventana_f = imagen[punto[0]-1:punto[0]+2]
+
+    ventana_c = [ventana_f[0,punto[1]-1 : punto[1]+2],ventana_f[1,punto[1]-1 : punto[1]+2],ventana_f[2,punto[1]-1 : punto[1]+2]]
+   
+    sum = 0
+
+    for i in range(0,3):
+        for j in range(0,3):
+            sum = sum + ventana_c[i][j]
+    
+    sum = sum / 9
+
+    return sum 
 
 def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
 
-    puntos_con_mayor_corr = np.array([[0,0]])
-
-    for i in range(esquinas_p.shape):
-        for j in range(esquinas_q.shape):
+    puntos_con_mayor_corr = np.array([[[0,0],[0,0]]])
+   
+    for i in range(esquinas_p.shape[0]):
+        esquina_p = esquinas_p[i]
+        for j in range(esquinas_q.shape[0]):
+            
+            esquina_q = esquinas_q[j]
             promedio_p = promedio(esquinas_p[i],imagen_p)
             promedio_q = promedio(esquinas_q[j],imagen_q)
 
-            sum_1 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]+1] - promedio_p) * (imagen_q[esquinas_q[i,0]+1,esquinas_q[i,1]+1] - promedio_q)         
-            sum_2 = (imagen_p[esquinas_p[i,0],esquinas_p[i,1]+1] - promedio_p)   * (imagen_q[esquinas_q[i,0],esquinas_q[i,1]+1] - promedio_q)    
-            sum_3 = (imagen_p[esquinas_p[i,0]-1,esquinas_p[i,1]+1] - promedio_p) * (imagen_q[esquinas_q[i,0]-1,esquinas_q[i,1]+1] - promedio_q)
-            sum_4 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]] - promedio_p)   * (imagen_q[esquinas_q[i,0]+1,esquinas_q[i,1]] - promedio_q)
-            sum_5 = (imagen_p[esquinas_p[i,0],esquinas_p[i,1]] - promedio_p)     * (imagen_q[esquinas_q[i,0],esquinas_q[i,1]] - promedio_q)
-            sum_6 = (imagen_p[esquinas_p[i,0]-1,esquinas_p[i,1]] - promedio_p)   * (imagen_q[esquinas_q[i,0]-1,esquinas_q[i,1]] - promedio_q)
-            sum_7 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]-1] - promedio_p) * (imagen_q[esquinas_q[i,0]+1,esquinas_q[i,1]-1] - promedio_q)
-            sum_8 = (imagen_p[esquinas_p[i,0],esquinas_p[i,1]-1] - promedio_p)   * (imagen_q[esquinas_q[i,0],esquinas_q[i,1]-1] - promedio_q)
-            sum_9 = (imagen_p[esquinas_p[i,0]+1,esquinas_p[i,1]-1] - promedio_p) * (imagen_q[esquinas_q[i,0]-1,esquinas_q[i,1]-1] - promedio_q)
+            ventana_f_p = imagen_p[esquina_p[0]-1 : esquina_p[0]+2]
+            ventana_f_q = imagen_q[esquina_q[0]-1 : esquina_q[0]+2]
+            ventana_c_p = [ventana_f_p[0,esquina_p[1]-1 : esquina_p[1]+2],ventana_f_p[1,esquina_p[1]-1 : esquina_p[1]+2],ventana_f_p[2,esquina_p[1]-1 : esquina_p[1]+2]]
+            ventana_c_q = [ventana_f_q[0,esquina_q[1]-1 : esquina_q[1]+2],ventana_f_q[1,esquina_q[1]-1 : esquina_q[1]+2],ventana_f_q[2,esquina_q[1]-1 : esquina_q[1]+2]]
+          
 
-            sum = sum_1 + sum_2 + sum_3 + sum_4 + sum_5 + sum_6 + sum_7 + sum_8 + sum_9 
+            coef_corr_nom = 0
+            coef_corr_den_p = 0
+            coef_corr_den_q = 0
+            for k in range(0,2):
+                for l in range(0,2):
+                  coef_corr_nom   = coef_corr_nom + ((ventana_c_p[k][l] - promedio_p) * (ventana_c_q[k][l] - promedio_q)) 
+                  coef_corr_den_p = coef_corr_den_p + np.power((ventana_c_p[k][l] - promedio_p),2)
+                  coef_corr_den_q = coef_corr_den_q + np.power((ventana_c_q[k][l] - promedio_q),2)     
 
-            
-    return
+            coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
+
+            if(coef_corr > 0.8):
+                puntos_con_mayor_corr = np.append(puntos_con_mayor_corr,[[esquina_p,esquina_q]],0)
+    
+    puntos_con_mayor_corr = np.delete(puntos_con_mayor_corr,0,0)
+    return puntos_con_mayor_corr
 
 def ransac():
     #Detección esquinas
