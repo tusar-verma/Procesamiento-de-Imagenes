@@ -25,7 +25,7 @@ def getHomography(puntosP, puntosQ):
     B = np.array(B)
 
     #Descomponsición SVD de B, B=UDVt
-    U, d, Vt = np.linalg.svd(B)
+    U, d, Vt = np.linalg.svd(B.T@B)
 
     #Buscamos el indice correspondiente al menor elemento de d 
     indMin = np.argmin(d)
@@ -34,7 +34,7 @@ def getHomography(puntosP, puntosQ):
     h = Vt[indMin]
 
     #Se recupera la matriz
-    H = h.reshape((3,3))
+    H = h.reshape((3,3))/h[8]
 
     return H
 
