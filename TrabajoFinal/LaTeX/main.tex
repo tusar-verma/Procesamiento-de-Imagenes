@@ -4,6 +4,7 @@
 \usepackage{caratula} % Version modificada para usar las macros de algo1 de ~> https://github.com/bcardiff/dc-tex
 
 \graphicspath{ {./} }
+\usepackage{amsmath}
 \usepackage[left=1.5cm, right=2cm]{geometry}
 \geometry{
  a4paper,
@@ -33,4 +34,108 @@
 
 \section{Introducción}
 \par Hola
+% p
+% \
+\section{Deteccion de esquinas con Harris}
+Utilizaremos el algoritmo de Harris para detectar las esquinas en las dos imágenes que
+queremos unir. 
+\section{Homografia}
+\par En el contexto de la unión de imágenes medicas, las dos imágenes a unir se pueden asumir fueron tomadas desde ángulos
+similares sobre un mismo objeto, que lo pensaremos como un plano $\pi$ . Llamaremos a las dos cámaras C1 y C2 que apuntan
+a nuestro plano original $\pi$. Sea un punto $P$ perteneciente a nuestro plano original, tomaremos las proyecciones de 
+este punto sobre los planos captados por C1 y C2.
+
+\par En particular, a cada uno de estos puntos de nuestro plano $\pi$ los pensaremos como puntos en tres coordenadas 
+con valores $P_1$ (u1,v1,w1) y $P_2$ (u2,v2,w2). Sin embargo, para simplificar cálculos, pensaremos que el plano de nuestras 
+cámaras C1 y C2 están a una distancia 1 del plano xy, sobre el cual estara $\pi$. Entonces, usando coordenadas
+homogéneas $P_1$ = (u1', v1', 1) y $P_2$ = (u2', v2', 1), con u1' = u1/w1, 
+u2'= u2/w2, v1'= v1/w1 y v2'= v2/w2.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{HomogeneusCoords.png}
+    \caption{Proyecciones de los planos de las cámaras sobre el plano $\pi$}
+    \label{fig:homogeneus-coords}
+\end{figure}
+
+Entonces, sean $P_1$ = $(u1',v1',1)^t$ y $P_2$ = $(u2',v2',1)^t$, podemos pensar que existe una matriz $H$ tal que
+para todo punto $P\in \pi$ cuyas proyecciones sean $P_1,P_2$ se cumple lo siguiente
+\begin{figure}[h]
+    \centering
+    \begin{equation}
+        P_1 = HP_2
+    \end{equation}
+    %\caption{Proyecciones de los planos de las cámaras sobre el plano $\pi$}
+    \label{fig:Hmatrix}
+\end{figure}
+
+Esto es debido a que los estamos pensando en coordenadas homogéneas, donde un vector o matriz $v$ es equivalente $v k$ con $k \neq 0$ 
+\begin{figure}[h]
+    \centering
+    \begin{equation}
+        \begin{bmatrix}
+            u1' \\
+            v1' \\
+            1   \\
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            h_{11} & h_{12} & h_{13} \\
+            h_{21} & h_{22} & h_{23} \\
+            h_{31} & h_{32} & h_{33} 
+        \end{bmatrix}
+        \begin{bmatrix}
+            u2' \\
+            v2' \\
+            1   \\
+        \end{bmatrix}
+    \end{equation}
+    \label{fig:H-bmatrix}
+\end{figure}
+
+Luego, nos podemos aprovechar de que multiplicar a $H$ por $1/h_{33}$ no modifica la ecuación a fines de definir nuestro $h_{33}' = 1$ y así obtener que nuestra matriz tenga 8 grados de libertad.
+Sin embargo esto nos trae un problema, y es que si $h_{33} = 0$, este método no nos permitirá hallar $H$, que es el objetivo de nuestro trabajo. Otra forma de forzar los 8 grados de libertad es normalizar la matriz tal que $|| (h_{11},h_{12},h_{13},h_{21},h_{22},h_{23},h_{31},h_{32},h_{33} )|| = 1$.
+% Aca falta explicar un poco mas xq eso vale
+El paso siguiente es hallar los valores de H. Para esto planteareamos las siguientes ecuaciones
+\begin{figure}[]
+    \centering
+    \begin{equation}
+        u_1' = (h_{11} u_2' + h_{12} v_2' + h_{13})/(h_{31} u_2' + h_{32} v_2' + h_{33})
+    \end{equation}
+    %\caption{Proyecciones de los planos de las cámaras sobre el plano $\pi$}
+    \label{fig:H-eq-1}
+\end{figure}
+\begin{figure}[]
+    \centering
+    \begin{equation}
+        u_2' = (h_{21} u_2' + h_{22} v_2' + h_{23})/(h_{31} u_2' + h_{32} v_2' + h_{33})
+    \end{equation}
+    %\caption{Proyecciones de los planos de las cámaras sobre el plano $\pi$}
+    \label{fig:H-eq-1}
+\end{figure}
+
+Luego despejando 
+\begin{figure}[h]
+    \centering
+    %\begin{equation}
+    \begin{align}
+        (h_{31} u_2' + h_{32} v_2' + h_{33})u_1' = (h_{11} u_2' + h_{12} v_2' + h_{13})\\
+        (h_{31} u_2' + h_{32} v_2' + h_{33})u_2' = (h_{21} u_2' + h_{22} v_2' + h_{23})\\
+    \end{align}
+    %\end{equation}
+    %\caption{Proyecciones de los planos de las cámaras sobre el plano $\pi$}
+    \label{fig:H-eq-2}
+\end{figure}
+ y finalmente
+\begin{figure}[h]
+    \centering
+    %\begin{equation}
+    \begin{align}
+       h_{11} u_2' + h_{12} v_2' + h_{13} - h_{31} u_2' u_1' - h_{32} v_1' u_2' - h_{33} u_2'\\
+        (h_{31} u_2' + h_{32} v_2' + h_{33})u_2' = (h_{21} u_2' + h_{22} v_2' + h_{23})\\
+    \end{align}
+    %\end{equation}
+    %\caption{Proyecciones de los planos de las cámaras sobre el plano $\pi$}
+    \label{fig:H-eq-2}
+\end{figure}
 \end{document}
