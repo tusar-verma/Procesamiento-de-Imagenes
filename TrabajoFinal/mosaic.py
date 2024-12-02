@@ -232,8 +232,12 @@ def blend(imagen1, or1, imagen2, or2, m, n):
     imagen1f = img_as_float(imagen1)
     imagen2f = img_as_float(imagen2)
 
-    capaAlpha1 = filalpha(imagen1f.shape[0],imagen1f.shape[1])
-    capaAlpha2 = filalpha(imagen2f.shape[0], imagen2f.shape[1])
+
+    dim1 = [imagen1f.shape[0],imagen1f.shape[1]]
+    dim2 = [imagen2f.shape[0], imagen2f.shape[1]]
+    capaAlpha1 = filalpha(dim1[0], dim1[1])
+    capaAlpha2 = filalpha(dim2[0], dim2[1])
+    
     capas = imagen1f.shape[2]
 
     imagen1a = imagen1f
@@ -244,14 +248,14 @@ def blend(imagen1, or1, imagen2, or2, m, n):
 
     
     capaAlphaTot = np.ones((m,n))
-    capaAlphaTot[or1[0]:or1[0]+m+1, or1[1]:or1[1]+n+1] = 0
-    capaAlphaTot[or2[0]:or2[0]+m+1, or2[1]:or2[1]+n+1] = 0
-    capaAlphaTot[or1[0]:or1[0]+m+1, or1[1]:or1[1]+n+1] += capaAlpha1
-    capaAlphaTot[or2[0]:or2[0]+m+1, or2[1]:or2[1]+n+1] += capaAlpha2
+    capaAlphaTot[or1[0]:or1[0]+dim1[0], or1[1]:or1[1]+dim1[1]] = 0
+    capaAlphaTot[or2[0]:or2[0]+dim2[0], or2[1]:or2[1]+dim2[1]] = 0
+    capaAlphaTot[or1[0]:or1[0]+dim1[0], or1[1]:or1[1]+dim1[1]] += capaAlpha1
+    capaAlphaTot[or2[0]:or2[0]+dim2[0], or2[1]:or2[1]+dim2[1]] += capaAlpha2
 
     imagenTot = np.zeros((m,n,3))
-    imagenTot[or1[0]:or1[0]+m+1, or1[1]:or1[1]+n+1, :] += imagen1a
-    imagenTot[or2[0]:or2[0]+m+1, or2[1]:or2[1]+n+1, :] += imagen2a
+    imagenTot[or1[0]:or1[0]+dim1[0], or1[1]:or1[1]+dim1[1], :] += imagen1a
+    imagenTot[or2[0]:or2[0]+dim2[0], or2[1]:or2[1]+dim2[1], :] += imagen2a
 
     for i in range(capas):
         imagenTot[:,:,i] = imagenTot[:,:,i]/capaAlphaTot
