@@ -21,6 +21,7 @@ def getHomography(puntosP, puntosQ):
         f2 = [0, 0, 0, p[0], p[1], 1, -p[0]*q[1], -p[1]*q[1], -q[1]]
         B.append(f1)
         B.append(f2)
+    
     B = np.array(B)
 
     #Descomponsición SVD de B, B=UDVt
@@ -49,7 +50,7 @@ def productHomography(H, p):
     return puntosQEstimados
 
 def simpleProductHomography(H,p):
-    puntoQl = productHomography(H,[p])
+    puntoQl = productHomography(H,np.array([p]))
     return puntoQl[0]
 
 #Devuelva una array H donde H[i] = [x,y] I[x,y] es una esquina
@@ -76,7 +77,7 @@ def promedio(punto , imagen, radio):
     return sum 
 
 def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
-    radio = 1
+    radio = 3
     puntos_con_mayor_corr = []
    
     for i in range(esquinas_p.shape[0]):
@@ -106,11 +107,12 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
 
             coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
 
-            if(coef_corr > 0.8):
+            if(coef_corr > 0.9):
                 puntos_con_mayor_corr.append([esquina_p,esquina_q])
     
     #puntos_con_mayor_corr = np.delete(puntos_con_mayor_corr,0,0)
     puntos_con_mayor_corr = np.array(puntos_con_mayor_corr)
+    
     return puntos_con_mayor_corr
 
 def ransac(imagen1, imagen2):
@@ -130,8 +132,8 @@ def ransac(imagen1, imagen2):
     puntosP = esquinasFiltradas[:,0]
     puntosQ = esquinasFiltradas[:,1]
 
-    tolerancia = 2*10**(-1) #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
-    minConsistentes = 0.7*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
+    tolerancia = 10 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
+    minConsistentes = 0.12*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**5 #Cantidad máxima de iteraciones
     cantConsistentes = 0
     H = 0
@@ -156,7 +158,7 @@ def ransac(imagen1, imagen2):
     puntosQEstimados = productHomography(H, puntosP)
     
     #Indices de puntos consistenes con el H
-    indConsistentes = np.nonzero(np.atleast_1d(np.linalg.norm(puntosQEstimados - puntosQ, ord=2, axis=1) < tolerancia))[0]
+    indConsistentes = np.nonzero(np.atleast_1d(np.linalg.norm(puntosQEstimados - puntosQ, ord=np.inf, axis=1) < tolerancia))[0]
 
     #Se recuperan puntos consistentes con el último H computado
     puntosPConsistentes = puntosP[indConsistentes]
@@ -170,26 +172,35 @@ def ransac(imagen1, imagen2):
 
 def warping(imagen1, imagen2, H):
     #la imagen 2 se considerará la perspectiva de referencia
+    print("H", H)
     esquinas = np.array([[0,0], [0,imagen1.shape[1]-1], [imagen1.shape[0]-1,0], [imagen1.shape[0]-1, imagen1.shape[1]-1]])
-    esquinasn = np.int32(productHomography(H, esquinas))
+    print(esquinas)
+    esquinasn = productHomography(H, esquinas).astype(int)
+    print(esquinasn)
     minfila = np.min(esquinasn[:,0])
     maxfila = np.max(esquinasn[:,0])
     mincol = np.min(esquinasn[:,1])
     maxcol = np.max(esquinasn[:,1])
+
+
     #ASUMO QUE LAS IMAGENES SE SUPERPONEN TANTO EN FILAS COMO COLUMNAS
     #En consecuencia maxcol y maxfila han de ser positivos
-    offsetfila = -max(0,minfila)
-    offsetcol = -max(0,mincol)
-    m = max(maxfila + offsetfila, imagen2.shape[0])
-    n = max(maxcol + offsetcol, imagen2.shape[1])
+    offsetfila = - ((minfila < 0) * minfila)
+    offsetcol = - ((mincol < 0) * mincol)
+    m = max(maxfila +1, imagen2.shape[0]) + offsetfila
+    n = max(maxcol +1, imagen2.shape[1]) +  offsetcol
+    print(maxfila,offsetfila, maxcol,offsetcol)
+    im1w = np.zeros((maxfila+offsetfila+1, maxcol+offsetcol+1, 3))
 
-    im1w = np.zeros(maxfila+offsetfila, maxcol+offsetcol)
+    cv.warpPerspective(imagen1, im1w, H, im1w.size)
+
+    """
     for i in range(imagen1.shape[0]):
-        for j in range(imagen1.shape[0]):
-            index = [i,j]
-            nindex = np.int32(simpleProductHomography(index)) + [offsetfila, offsetcol]
+        for j in range(imagen1.shape[1]):
+            index = np.array([i,j])
+            nindex = simpleProductHomography(H, index).astype(int) + np.array([offsetfila, offsetcol])
             im1w[nindex[0],nindex[1]] = imagen1[i, j]
-    
+    """
     or1 = np.array([0+offsetfila, 0+offsetcol])
     or2 = np.array([minfila+offsetfila, mincol+offsetcol])
     
@@ -233,14 +244,14 @@ def blend(imagen1, or1, imagen2, or2, m, n):
 
     
     capaAlphaTot = np.ones((m,n))
-    capaAlphaTot[or1[0]:or1[0]+m, or1[1]:or1[1]+n] = 0
-    capaAlphaTot[or2[0]:or2[0]+m, or2[1]:or2[1]+n] = 0
-    capaAlphaTot[or1[0]:or1[0]+m, or1[1]:or1[1]+n] += capaAlpha1
-    capaAlphaTot[or2[0]:or2[0]+m, or2[1]:or2[1]+n] += capaAlpha2
+    capaAlphaTot[or1[0]:or1[0]+m+1, or1[1]:or1[1]+n+1] = 0
+    capaAlphaTot[or2[0]:or2[0]+m+1, or2[1]:or2[1]+n+1] = 0
+    capaAlphaTot[or1[0]:or1[0]+m+1, or1[1]:or1[1]+n+1] += capaAlpha1
+    capaAlphaTot[or2[0]:or2[0]+m+1, or2[1]:or2[1]+n+1] += capaAlpha2
 
     imagenTot = np.zeros((m,n,3))
-    imagenTot[or1[0]:or1[0]+m, or1[1]:or1[1]+n, :] += imagen1a
-    imagenTot[or2[0]:or2[0]+m, or2[1]:or2[1]+n, :] += imagen2a
+    imagenTot[or1[0]:or1[0]+m+1, or1[1]:or1[1]+n+1, :] += imagen1a
+    imagenTot[or2[0]:or2[0]+m+1, or2[1]:or2[1]+n+1, :] += imagen2a
 
     for i in range(capas):
         imagenTot[:,:,i] = imagenTot[:,:,i]/capaAlphaTot
@@ -274,15 +285,17 @@ def dice(imagen1, imagen2):
 
 
 def main():
-    imagen1 = cv.imread("./der.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./cuadrados_der.png", cv.IMREAD_COLOR)
 
-    imagen2 = cv.imread("./izq.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./cuadrados_izq.png", cv.IMREAD_COLOR)
 
 
     H = ransac(imagen1, imagen2)
 
     or1, or2, m, n, imw1 = warping(imagen1, imagen2, H)
 
+    plt.imshow(imw1)
+    plt.show()
     imagenRes = blend(imw1, or1, imagen2, or2, m, n)
 
     fig, ax = plt.subplots(1,3, shape=(10,10))
