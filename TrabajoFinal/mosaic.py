@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 #puntosP y puntosQ son una lista de puntos del mismo tamaño
 #Retorna la matriz de homografía
 def getHomography(puntosP, puntosQ):
+    #INVERTIR COL Y FILAS COORDENADAS NO SON LAS MISMAS
     B = []
     
     #Se añade para cada punto las dos ecuaciones asociadas al sistema dado por la matriz B
@@ -45,7 +46,8 @@ def productHomography(H, p):
     puntosP3D[:2,:] = p.T
     puntosQEstimados3D = H@puntosP3D
 
-    puntosQEstimados = puntosQEstimados3D[:2,:]/puntosQEstimados3D[2,:]
+    puntosQEstimados = puntosQEstimados3D[:2,:]
+    puntosQEstimados = puntosQEstimados[:]/puntosQEstimados3D[2,:]
     puntosQEstimados = puntosQEstimados.T
     return puntosQEstimados
 
@@ -107,7 +109,7 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
 
             coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
 
-            if(coef_corr > 0.9):
+            if(coef_corr > 0.8):
                 puntos_con_mayor_corr.append([esquina_p,esquina_q])
     
     #puntos_con_mayor_corr = np.delete(puntos_con_mayor_corr,0,0)
@@ -172,6 +174,12 @@ def ransac(imagen1, imagen2):
     print(indConsistentes, puntosPConsistentes.shape[0],iter)
     Hres = getHomography(puntosPConsistentes,puntosQConsistentes)
     
+
+
+    #cvHomography = cv.findHomography(puntosP,puntosQ,cv.RANSAC,10,maxIters = 10**5)[0]
+    #Hres = cvHomography
+
+
     return Hres
 
 def warping(imagen1, imagen2, H):
@@ -196,7 +204,7 @@ def warping(imagen1, imagen2, H):
     print(maxfila,offsetfila, maxcol,offsetcol)
     im1w = np.zeros((maxfila+offsetfila+1, maxcol+offsetcol+1, 3))
 
-    cv.warpPerspective(imagen1, im1w, H, im1w.size)
+    im1w = cv.warpPerspective(imagen1, H, (maxfila, maxcol))
 
     """
     for i in range(imagen1.shape[0]):
@@ -204,7 +212,7 @@ def warping(imagen1, imagen2, H):
             index = np.array([i,j])
             nindex = simpleProductHomography(H, index).astype(int) + np.array([offsetfila, offsetcol])
             im1w[nindex[0],nindex[1]] = imagen1[i, j]
-    """
+   """
     or1 = np.array([0+offsetfila, 0+offsetcol])
     or2 = np.array([minfila+offsetfila, mincol+offsetcol])
     
@@ -252,6 +260,7 @@ def blend(imagen1, or1, imagen2, or2, m, n):
 
     
     capaAlphaTot = np.ones((m,n))
+    print(capaAlphaTot.shape)
     capaAlphaTot[or1[0]:or1[0]+dim1[0], or1[1]:or1[1]+dim1[1]] = 0
     capaAlphaTot[or2[0]:or2[0]+dim2[0], or2[1]:or2[1]+dim2[1]] = 0
     capaAlphaTot[or1[0]:or1[0]+dim1[0], or1[1]:or1[1]+dim1[1]] += capaAlpha1
@@ -296,7 +305,7 @@ def main():
     imagen1 = cv.imread("./cuadrados_der.png", cv.IMREAD_COLOR)
 
     imagen2 = cv.imread("./cuadrados_izq.png", cv.IMREAD_COLOR)
-
+    print(imagen1.shape)
 
     H = ransac(imagen1, imagen2)
 
