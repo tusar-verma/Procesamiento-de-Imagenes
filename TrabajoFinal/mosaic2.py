@@ -4,12 +4,6 @@ import harris as h
 from skimage import feature
 from skimage import img_as_float
 import matplotlib.pyplot as plt
-from ransac2 import ransac2
-
-def x(p):
-    return p[1]
-def y(p):
-    return p[0]
 
 def productHomography(H, p):
     puntosP3D = np.ones((3,p.shape[0]))
