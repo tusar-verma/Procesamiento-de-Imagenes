@@ -317,9 +317,9 @@ def blend2(imagenref, imagen2, offset):
     return res
 
 def main():
-    imagen2 = cv.imread("./Pabe2DerLowres.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./tecladoDer.png", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./Pabe2IzqLowres.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./tecladoIzq.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
