@@ -134,7 +134,7 @@ def ransac(imagen1, imagen2):
     
     
     tolerancia = 5 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
-    #minConsistentes = 0.12*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
+    minConsistentes = 0.8*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**5 #Cantidad máxima de iteraciones
     cantConsistentes = 0
     H = 0
@@ -142,7 +142,7 @@ def ransac(imagen1, imagen2):
 
     maxconsist = 0
     Hmax = 0
-    while(iter < maxIter):
+    while(cantConsistentes < minConsistentes and iter < maxIter):
         #Se seleccionan 4 puntos y se obtiene la homografía asociada
         randInd = np.random.randint(puntosP.shape[0], size = 4) 
         puntosPsel = puntosP[randInd]
