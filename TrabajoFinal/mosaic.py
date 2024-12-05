@@ -111,7 +111,11 @@ def getHomography(puntosP, puntosQ):
     h = Vt[indMin]
 
     #Se recupera la matriz
-    H = h.reshape((3,3))/h[8]
+    H = h.reshape((3,3))
+
+    #Se estabiliza de ser posible la matriz Homográfica
+    if(np.abs(h[8]) > 10**(-15)):
+        H = H/h[8]
 
     return H
 
