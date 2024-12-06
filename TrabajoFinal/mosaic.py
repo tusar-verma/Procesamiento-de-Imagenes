@@ -59,7 +59,7 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
 
             coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
 
-            if(coef_corr > 0.8):
+            if(coef_corr > 0.9):
                 if(max_corr < coef_corr):
                     max_corr = coef_corr
                     mejor_esquina = esquina_q
@@ -137,7 +137,7 @@ def ransac(imagen1, imagen2):
     puntosQ = esquinasFiltradas[:,1]
     
     
-    tolerancia = 5 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
+    tolerancia = 2 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
     minConsistentes = 0.8*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**5 #Cantidad máxima de iteraciones
     cantConsistentes = 0
@@ -317,9 +317,9 @@ def blend2(imagenref, imagen2, offset):
     return res
 
 def main():
-    imagen2 = cv.imread("./tecladoDer.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./imagenes/Cubo-der.jpeg", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./tecladoIzq.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./imagenes/Cubo-izq.jpeg", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
@@ -331,7 +331,7 @@ def main():
     imw1, offset = warping(imagen1, imagen2, H)
     print("--- Warping finalizado ---")
 
-    #Se hace el blending de las dom imagenes (teniendo en cuenta el offset del warpeo) y se obtiene la imagen compuesta
+    #Se hace el blending de las dos imagenes (teniendo en cuenta el offset del warpeo) y se obtiene la imagen compuesta
     print("Iniciando blending ...")
     imagenRes = blend2(imw1, imagen2, offset)
     print("--- Blending finalizado ---")
