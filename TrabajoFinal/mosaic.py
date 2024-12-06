@@ -102,7 +102,7 @@ def getHomography(puntosP, puntosQ):
     B = np.array(B)
 
     #Descomponsición SVD de B, B=UDVt
-    U, d, Vt = np.linalg.svd(B)
+    U, d, Vt = np.linalg.svd(np.float64(B))
 
     #Buscamos el indice correspondiente al menor elemento de d 
     indMin = np.argmin(d)
@@ -138,7 +138,7 @@ def ransac(imagen1, imagen2):
     
     tolerancia = 5 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
     minConsistentes = 0.9*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
-    maxIter = 10**5 #Cantidad máxima de iteraciones
+    maxIter = 10**6 #Cantidad máxima de iteraciones
     cantConsistentes = 0
     H = 0
     iter = 0
@@ -213,7 +213,7 @@ def warping(imagen1, imagen2, H):
     #Se transforma la matriz en un lista de coordenadas
     coord = coord.reshape((imagen1.shape[0]*imagen1.shape[1],2))
 
-    #Se calculas las nuevas coordenadas aplicando el offset
+    #Se calculan las nuevas coordenadas aplicando el offset
     nuevas_coord = np.round(productHomography(H,coord)) + offset
 
     #Buscamos filtrar las coordenadas que se salen de los bordes definidos por im1w
@@ -266,24 +266,26 @@ def warping2(imagen1, imagen2, H):
     #Se transforma la matriz en un lista de coordenadas
     coord = coord.reshape((im1w.shape[0]*im1w.shape[1],2))
 
-    Hinv = np.linalg.inv(H)
-    #Se calculas las nuevas coordenadas aplicando el offset
-    nuevas_coord = np.round(productHomography(Hinv,coord - offset)) 
-    #Buscamos filtrar las coordenadas que se salen de los bordes definidos por im1w
-    lista_borde = np.logical_and(np.logical_and(np.min(nuevas_coord, axis=1) >= 0, nuevas_coord[:,0] < imagen1.shape[0]), nuevas_coord[:,1] < imagen1.shape[1])
+    #Se invierte la matriz homográfica
+    Hinv = np.linalg.inv(np.float64(H))
+
+    #Se calculan las coordenadas en la vieja imagen1 aplicando el offset
+    viejas_coord = np.round(productHomography(Hinv,coord - offset)) 
+    #Buscamos filtrar las coordenadas que se salen de los bordes definidos por imagen1
+    lista_borde = np.logical_and(np.logical_and(np.min(viejas_coord, axis=1) >= 0, viejas_coord[:,0] < imagen1.shape[0]), viejas_coord[:,1] < imagen1.shape[1])
     
     #Se obtienen los indices válidos para la lista de coordanadas que corresponden a coordenadas válidas
     indices_validos = np.nonzero(np.atleast_1d(lista_borde))
     
     #Nos quedamos con las coordenadas válidas
-    nuevas_coord = nuevas_coord[indices_validos]
+    viejas_coord = viejas_coord[indices_validos]
     coord = coord[indices_validos]
     #Se obtienen listas de coordenadas en un formato indexable en un array 2d
-    listacoord_nueva = tuple(zip(*nuevas_coord.astype(int)))
+    listacoord_viejas = tuple(zip(*viejas_coord.astype(int)))
     listacoord = tuple(zip(*coord.astype(int)))
 
-    #Se obtienen los valores viejos a asignar en la nueva imagen
-    valores_viejos = imagen1f[listacoord_nueva]
+    #Se obtienen los valores viejos a asignar en la nueva imagen con la lista de coordenadas de la imagen1 transformadas válidas
+    valores_viejos = imagen1f[listacoord_viejas]
 
     #Se asignan valores de imagen1 en las coordenadas nuevas válidas correspondeintes dadas por la matriz homografica
     im1w[listacoord] = valores_viejos
@@ -378,9 +380,10 @@ def blend2(imagenref, imagen2, offset):
     return res
 
 def main():
-    imagen2 = cv.imread("./imagenes/der.png", cv.IMREAD_COLOR)
+    #DSC_0308.png, DSC_0310.png
+    imagen2 = cv.imread("./imagenes/DSC_0308.png", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./imagenes/izq.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./imagenes/DSC_0310.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
@@ -389,7 +392,7 @@ def main():
 
     #Se aplica warping recuperando el offset y la imagen1 "warpeada"
     print("Haciendo warping ...")
-    imw1, offset = warping(imagen1, imagen2, H)
+    imw1, offset = warping2(imagen1, imagen2, H)
     print("--- Warping finalizado ---")
 
     #Se hace el blending de las dos imagenes (teniendo en cuenta el offset del warpeo) y se obtiene la imagen compuesta
