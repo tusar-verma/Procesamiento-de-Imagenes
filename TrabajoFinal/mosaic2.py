@@ -201,9 +201,9 @@ def blend2(imagenref, imagen2):
 
 def main():
     
-    imagen1 = cv.imread("./imagenes/escenario-der.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./imagenes/DSC_0308.png", cv.IMREAD_COLOR)
 
-    imagen2 = cv.imread("./imagenes/escenario-izq.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./imagenes/DSC_0310.png", cv.IMREAD_COLOR)
 
     H = ransac(imagen1, imagen2)
 
