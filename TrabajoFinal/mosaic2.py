@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import harris as h
 from skimage import feature
-from skimage import img_as_float
+from skimage import img_as_float, img_as_ubyte
 import matplotlib.pyplot as plt
 
 def productHomography(H, p):
@@ -43,7 +43,9 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
             ventana_c_q = imagen_q[esquina_q[0]-radio : esquina_q[0]+radio+1, esquina_q[1]-radio : esquina_q[1]+radio+1]
             promedio_p = np.mean(ventana_c_p)
             promedio_q = np.mean(ventana_c_q)
-            if (ventana_c_p.size != ventana_c_q.size):
+            
+            
+            if ((ventana_c_p.size != ventana_c_q.size) or (ventana_c_p.size!=(2*radio+1)**2) or ventana_c_q.size != (2*radio+1)**2):
                 continue
             coef_corr_nom = 0
             coef_corr_den_p = 0
@@ -61,7 +63,8 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
                     max_corr = coef_corr
                     mejor_esquina = esquina_q
         
-        puntos_con_mayor_corr.append([esquina_p,mejor_esquina])
+        if(max_corr > 0.80):
+            puntos_con_mayor_corr.append([esquina_p,mejor_esquina])
     
     puntos_con_mayor_corr = np.array(puntos_con_mayor_corr)
     return puntos_con_mayor_corr
@@ -132,7 +135,7 @@ def warping(imagen1, imagen2, H):
 
 
 def filalpha(m,n):
-    desde = 0
+    desde = 0.001
     centro = ((m-1)/2, (n-1)/2)
     mv = -(1-desde)/centro[0]
     mh = -(1-desde)/centro[1]
@@ -197,9 +200,10 @@ def blend2(imagenref, imagen2):
     return res
 
 def main():
-    imagen1 = cv.imread("./der.png", cv.IMREAD_COLOR)
+    
+    imagen1 = cv.imread("./imagenes/escenario-der.png", cv.IMREAD_COLOR)
 
-    imagen2 = cv.imread("./izq.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./imagenes/escenario-izq.png", cv.IMREAD_COLOR)
 
     H = ransac(imagen1, imagen2)
 
@@ -214,5 +218,7 @@ def main():
     ax[2].imshow(imagenRes)
     plt.show()
     
+    cv.imwrite("res_cv2.png",img_as_ubyte(imagenRes))
+
 
 main()

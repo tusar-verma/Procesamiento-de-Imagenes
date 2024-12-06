@@ -30,7 +30,7 @@ def obtener_esquinas(imagen):
 
 
 def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
-    radio = 3
+    radio = 8
     puntos_con_mayor_corr = []
    
     for i in range(esquinas_p.shape[0]):
@@ -59,12 +59,12 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
 
             coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
 
-            if(coef_corr > 0.9):
+            if(coef_corr > 0.8):
                 if(max_corr < coef_corr):
                     max_corr = coef_corr
                     mejor_esquina = esquina_q
         
-        if(max_corr > 0.90):
+        if(max_corr > 0.80):
             puntos_con_mayor_corr.append([esquina_p,mejor_esquina])
     
     puntos_con_mayor_corr = np.array(puntos_con_mayor_corr)
@@ -102,7 +102,7 @@ def getHomography(puntosP, puntosQ):
     B = np.array(B)
 
     #Descomponsición SVD de B, B=UDVt
-    U, d, Vt = np.linalg.svd(B.T@B)
+    U, d, Vt = np.linalg.svd(B)
 
     #Buscamos el indice correspondiente al menor elemento de d 
     indMin = np.argmin(d)
@@ -114,9 +114,8 @@ def getHomography(puntosP, puntosQ):
     H = h.reshape((3,3))
 
     #Se estabiliza de ser posible la matriz Homográfica
-    if(np.abs(h[8]) > 10**(-15)):
+    if(np.abs(h[8]) > 10**(-8)):
         H = H/h[8]
-
     return H
 
 def ransac(imagen1, imagen2):
@@ -137,8 +136,8 @@ def ransac(imagen1, imagen2):
     puntosQ = esquinasFiltradas[:,1]
     
     
-    tolerancia = 2 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
-    minConsistentes = 0.8*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
+    tolerancia = 5 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
+    minConsistentes = 0.9*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**5 #Cantidad máxima de iteraciones
     cantConsistentes = 0
     H = 0
@@ -193,18 +192,18 @@ def warping(imagen1, imagen2, H):
     esquinas = np.array([[0,0], [0,imagen1.shape[1]-1], [imagen1.shape[0]-1,0], [imagen1.shape[0]-1,imagen1.shape[1]-1]])
     esquinasn = productHomography(H, esquinas).astype(int)
     #productHomography invierte coordenadas X e Y
-    minY= np.min(esquinasn[:,0])
+    minY = np.min(esquinasn[:,0])
     maxY = np.max(esquinasn[:,0])
     minX = np.min(esquinasn[:,1])
     maxX = np.max(esquinasn[:,1])
     
     #Calculamos offset en caso de que la imagen1 mapee a coordenadas negativas
     offset = np.array([(minY<0)*-minY, (minX<0)*-minX])
-    ancho = max(maxX, imagen2.shape[1])
-    alto = max(maxY, imagen2.shape[0])
+    ancho = max(maxX+1, imagen2.shape[1])
+    alto = max(maxY+1, imagen2.shape[0])
 
     im1w = np.zeros((alto+offset[0],ancho+offset[1],3))
-
+    
     #Se calcula una matriz de coordenadas 2d
     ies, jes = np.indices((imagen1.shape[0],imagen1.shape[1]))
     coord = np.zeros((imagen1.shape[0],imagen1.shape[1],2))
@@ -217,6 +216,15 @@ def warping(imagen1, imagen2, H):
     #Se calculas las nuevas coordenadas aplicando el offset
     nuevas_coord = np.round(productHomography(H,coord)) + offset
 
+    #Buscamos filtrar las coordenadas que se salen de los bordes definidos por im1w
+    lista_borde = np.logical_and(np.logical_and(np.min(nuevas_coord, axis=1) >= 0, nuevas_coord[:,0] < im1w.shape[0]), nuevas_coord[:,1] < im1w.shape[1])
+    
+    #Se obtienen los indices válidos para la lista de coordanadas que corresponden a coordenadas válidas
+    indices_validos = np.nonzero(np.atleast_1d(lista_borde))
+    
+    #Nos quedamos con las coordenadas válidas
+    nuevas_coord = nuevas_coord[indices_validos]
+
     #Se obtienen listas de coordenadas en un formato indexable en un array 2d
     listacoord_nueva = tuple(zip(*nuevas_coord.astype(int)))
     listacoord = tuple(zip(*coord.astype(int)))
@@ -224,8 +232,8 @@ def warping(imagen1, imagen2, H):
     #Se obtienen los valores viejos a asignar en la nueva imagen
     valores_viejos = imagen1f[listacoord]
 
-    #Se asignan valores de imagen1 en las coordenadas nuevas correspondeintes dadas por la matriz homografica
-    im1w[listacoord_nueva] = valores_viejos
+    #Se asignan valores de imagen1 en las coordenadas nuevas válidas correspondeintes dadas por la matriz homografica
+    im1w[listacoord_nueva] = valores_viejos[indices_validos]
 
     plt.imshow(im1w)
     plt.show()
@@ -317,9 +325,9 @@ def blend2(imagenref, imagen2, offset):
     return res
 
 def main():
-    imagen2 = cv.imread("./imagenes/Cubo-der.jpeg", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./imagenes/escenario-der.png", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./imagenes/Cubo-izq.jpeg", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./imagenes/escenario-izq.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
