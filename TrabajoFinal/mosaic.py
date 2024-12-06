@@ -448,7 +448,7 @@ def main():
     print(f"El coeficiente de DICE entre la imagen original y la reconstruida es de {dicecoeff}")
     print("<<----------------------------")
     
-    cv.imwrite("res_pabe2.png",img_as_ubyte(imagenRes))
+    cv.imwrite("res_propio.png",img_as_ubyte(imagenRes))
     
 
 main()
