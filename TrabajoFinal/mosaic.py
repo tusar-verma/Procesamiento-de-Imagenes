@@ -30,7 +30,7 @@ def obtener_esquinas(imagen):
 
 
 def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
-    radio = 8
+    radio = 3
     puntos_con_mayor_corr = []
    
     for i in range(esquinas_p.shape[0]):
@@ -59,12 +59,12 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
 
             coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
 
-            if(coef_corr > 0.8):
+            if(coef_corr > 0.90):
                 if(max_corr < coef_corr):
                     max_corr = coef_corr
                     mejor_esquina = esquina_q
         
-        if(max_corr > 0.8):
+        if(max_corr > 0.90):
             puntos_con_mayor_corr.append([esquina_p,mejor_esquina])
     
     puntos_con_mayor_corr = np.array(puntos_con_mayor_corr)
