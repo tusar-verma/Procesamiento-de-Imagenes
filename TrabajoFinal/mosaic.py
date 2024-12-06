@@ -378,12 +378,31 @@ def blend2(imagenref, imagen2, offset):
     res = res + impagensuper
 
     return res
+    
+def dice(imagen1, imagen2):
+    m1 = imagen1.shape[0]
+    n1 = imagen1.shape[1]
+    m2 = imagen2.shape[0]
+    n2 = imagen2.shape[1]
 
+    M = max(m1,m2)
+    N = max(n1,n2)
+    
+    im1padd = -np.ones((M,N,3))
+    im2padd = -2*np.ones((M,N,3))
+
+    im1padd[:m1,:n1,:] = imagen1
+    im2padd[:m2,:n2,:] = imagen2
+
+    dicecoeff = 2*np.sum(im1padd==im2padd)/(3*m1*n1 + 3*m2*n2)
+
+    return dicecoeff
+    
 def main():
     #DSC_0308.png, DSC_0310.png
-    imagen2 = cv.imread("./imagenes/DSC_0308.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./imagenes/Cubo-Der.png", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./imagenes/DSC_0310.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./imagenes/Cubo-Izq.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
@@ -405,6 +424,29 @@ def main():
     ax[1].imshow(imagen2)
     ax[2].imshow(imagenRes)
     plt.show()
+    
+    # Para imágenes reconstruidas artificialmente
+    #imagenRes = cv.imread("./res_pabe2.png")
+    imagenOriginal = cv.imread("./imagenes/Cubo.png", cv.IMREAD_COLOR)
+    dicecoeff =  dice(imagenRes,imagenOriginal)
+    
+    primerCanal = imagenOriginal[:,:,0] == imagenRes[:,:,0]
+    plt.imshow(primerCanal)
+    plt.title("Coincidencias primer canal")
+    plt.show()
+    segundoCanal = imagenOriginal[:,:,1] == imagenRes[:,:,1]
+    plt.imshow(segundoCanal)
+    plt.title("Coincidencias segundo canal")
+    plt.show()
+    tercerCanal = imagenOriginal[:,:,2] == imagenRes[:,:,2]
+    plt.imshow(tercerCanal)
+    plt.title("Coincidencias tercer canal")
+    plt.show()    
+    
+    
+    print("------------------------------")
+    print(f"El coeficiente de DICE entre la imagen original y la reconstruida es de {dicecoeff}")
+    print("<<----------------------------")
     
     cv.imwrite("res_pabe2.png",img_as_ubyte(imagenRes))
     

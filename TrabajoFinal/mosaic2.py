@@ -199,6 +199,25 @@ def blend2(imagenref, imagen2):
     res = res + impagensuper
     return res
 
+def dice(imagen1, imagen2):
+    m1 = imagen1.shape[0]
+    n1 = imagen1.shape[1]
+    m2 = imagen2.shape[0]
+    n2 = imagen2.shape[1]
+
+    M = max(m1,m2)
+    N = max(n1,n2)
+    
+    im1padd = -np.ones((M,N,3))
+    im2padd = -2*np.ones((M,N,3))
+
+    im1padd[:m1,:n1,:] = imagen1
+    im2padd[:m2,:n2,:] = imagen2
+
+    dicecoeff = 2*np.sum(im1padd==im2padd)/(3*m1*n1 + 3*m2*n2)
+
+    return dicecoeff
+    
 def main():
     
     imagen1 = cv.imread("./imagenes/DSC_0308.png", cv.IMREAD_COLOR)
