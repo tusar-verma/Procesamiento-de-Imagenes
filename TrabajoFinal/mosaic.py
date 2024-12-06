@@ -239,6 +239,59 @@ def warping(imagen1, imagen2, H):
     plt.show()
     return im1w,offset
 
+def warping2(imagen1, imagen2, H):
+    imagen1f = img_as_float(imagen1)
+    #la imagen 2 se considerará la perspectiva de referencia
+    esquinas = np.array([[0,0], [0,imagen1.shape[1]-1], [imagen1.shape[0]-1,0], [imagen1.shape[0]-1,imagen1.shape[1]-1]])
+    esquinasn = productHomography(H, esquinas).astype(int)
+    #productHomography invierte coordenadas X e Y
+    minY = np.min(esquinasn[:,0])
+    maxY = np.max(esquinasn[:,0])
+    minX = np.min(esquinasn[:,1])
+    maxX = np.max(esquinasn[:,1])
+    
+    #Calculamos offset en caso de que la imagen1 mapee a coordenadas negativas
+    offset = np.array([(minY<0)*-minY, (minX<0)*-minX])
+    ancho = max(maxX+1, imagen2.shape[1])
+    alto = max(maxY+1, imagen2.shape[0])
+
+    im1w = np.zeros((alto+offset[0],ancho+offset[1],3))
+    
+    #Se calcula una matriz de coordenadas 2d
+    ies, jes = np.indices((im1w.shape[0],im1w.shape[1]))
+    coord = np.zeros((im1w.shape[0],im1w.shape[1],2))
+    coord[:,:,0] = ies[:,:]
+    coord[:,:,1] = jes[:,:]
+
+    #Se transforma la matriz en un lista de coordenadas
+    coord = coord.reshape((im1w.shape[0]*im1w.shape[1],2))
+
+    Hinv = np.linalg.inv(H)
+    #Se calculas las nuevas coordenadas aplicando el offset
+    nuevas_coord = np.round(productHomography(Hinv,coord - offset)) 
+    #Buscamos filtrar las coordenadas que se salen de los bordes definidos por im1w
+    lista_borde = np.logical_and(np.logical_and(np.min(nuevas_coord, axis=1) >= 0, nuevas_coord[:,0] < imagen1.shape[0]), nuevas_coord[:,1] < imagen1.shape[1])
+    
+    #Se obtienen los indices válidos para la lista de coordanadas que corresponden a coordenadas válidas
+    indices_validos = np.nonzero(np.atleast_1d(lista_borde))
+    
+    #Nos quedamos con las coordenadas válidas
+    nuevas_coord = nuevas_coord[indices_validos]
+    coord = coord[indices_validos]
+    #Se obtienen listas de coordenadas en un formato indexable en un array 2d
+    listacoord_nueva = tuple(zip(*nuevas_coord.astype(int)))
+    listacoord = tuple(zip(*coord.astype(int)))
+
+    #Se obtienen los valores viejos a asignar en la nueva imagen
+    valores_viejos = imagen1f[listacoord_nueva]
+
+    #Se asignan valores de imagen1 en las coordenadas nuevas válidas correspondeintes dadas por la matriz homografica
+    im1w[listacoord] = valores_viejos
+
+    plt.imshow(im1w)
+    plt.show()
+    return im1w,offset
+
 #Crea función piramide en 3d (varía de 1 a 0)
 def filalpha(m,n):
     desde = 0.001 #Evita divisiones por 0 a posteriori
@@ -325,9 +378,9 @@ def blend2(imagenref, imagen2, offset):
     return res
 
 def main():
-    imagen2 = cv.imread("./imagenes/escenario-der.png", cv.IMREAD_COLOR)
+    imagen2 = cv.imread("./imagenes/der.png", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./imagenes/escenario-izq.png", cv.IMREAD_COLOR)
+    imagen1 = cv.imread("./imagenes/izq.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
