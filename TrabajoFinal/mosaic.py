@@ -130,7 +130,7 @@ def ransac(imagen1, imagen2):
     #Se filtran las esquinas, quedandonos con los pares con mayor correlación (forma q, p)
     esquinasFiltradas = correlacion(esquinasP, esquinasQ, imagen1bw, imagen2bw)
 
-    visualizar_corr(imagen1bw, imagen2bw, esquinasFiltradas)
+    #visualizar_corr(imagen1bw, imagen2bw, esquinasFiltradas)
     #Se obtienen los puntos de partida P y los puntos de llegada Q en forma de lista
     puntosP = esquinasFiltradas[:,0]
     puntosQ = esquinasFiltradas[:,1]
@@ -182,7 +182,7 @@ def ransac(imagen1, imagen2):
     for i in range(puntosP.shape[0]):
         puntos_corr2[i,0] = puntosP[i]
         puntos_corr2[i,1] = puntosQEst[i]
-    visualizar_corr(imagen1bw, imagen2bw, puntos_corr2)
+    #visualizar_corr(imagen1bw, imagen2bw, puntos_corr2)
 
     return Hres
 
@@ -234,9 +234,10 @@ def warping(imagen1, imagen2, H):
 
     #Se asignan valores de imagen1 en las coordenadas nuevas válidas correspondeintes dadas por la matriz homografica
     im1w[listacoord_nueva] = valores_viejos[indices_validos]
-
+    """ 
     plt.imshow(im1w)
     plt.show()
+    """
     return im1w,offset
 
 def warping2(imagen1, imagen2, H):
@@ -289,9 +290,10 @@ def warping2(imagen1, imagen2, H):
 
     #Se asignan valores de imagen1 en las coordenadas nuevas válidas correspondeintes dadas por la matriz homografica
     im1w[listacoord] = valores_viejos
-
+    """ 
     plt.imshow(im1w)
     plt.show()
+    """
     return im1w,offset
 
 #Crea función piramide en 3d (varía de 1 a 0)
@@ -398,11 +400,11 @@ def dice(imagen1, imagen2):
 
     return dicecoeff
     
-def main():
+def mosaico(imagen1,imagen2):
     #DSC_0308.png, DSC_0310.png
-    imagen2 = cv.imread("./imagenes/Cubo-Der.png", cv.IMREAD_COLOR)
+    #imagen2 = cv.imread("./imagenes/Cubo-Der.png", cv.IMREAD_COLOR)
 
-    imagen1 = cv.imread("./imagenes/Cubo-Izq.png", cv.IMREAD_COLOR)
+    #imagen1 = cv.imread("./imagenes/Cubo-Izq.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
@@ -418,7 +420,8 @@ def main():
     print("Iniciando blending ...")
     imagenRes = blend2(imw1, imagen2, offset)
     print("--- Blending finalizado ---")
-
+    return imagenRes
+    """
     fig, ax = plt.subplots(1,3)
     ax[0].imshow(imagen1)
     ax[1].imshow(imagen2)
@@ -449,6 +452,6 @@ def main():
     print("<<----------------------------")
     
     cv.imwrite("res_propio.png",img_as_ubyte(imagenRes))
-    
+    """
 
-main()
+
