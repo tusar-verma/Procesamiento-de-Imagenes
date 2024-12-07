@@ -4,7 +4,7 @@ import cv2 as cv
 from skimage import feature
 from skimage import img_as_float, img_as_ubyte
 import mosaic as mo
-
+import random
 
 def mati_dice(i1,i2):
     m1 = i1.shape[0]
@@ -33,8 +33,11 @@ def dice_promedio():
         #leeo la imagen
         if(i < 61 ): #1999*0.03
             imagen_original = cv.imread(f"imagenes/Forest/{imagen}", cv.IMREAD_COLOR)
+            mitad = int(imagen_original.shape[1] * (1/2)) +17
+            porcion = random.randint(mitad, imagen_original.shape[1])
 
-            dos_tercios = int(imagen_original.shape[1] * (2/3))
+            #dos_tercios = int(imagen_original.shape[1] * porcion)
+            dos_tercios = porcion
             un_tercio   = imagen_original.shape[1] - dos_tercios
             print(dos_tercios, un_tercio)
             imagen_1 = imagen_original[0:imagen_original.shape[0],0:dos_tercios+1]
