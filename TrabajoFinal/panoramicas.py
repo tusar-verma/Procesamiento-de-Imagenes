@@ -5,7 +5,7 @@ from skimage import feature
 from skimage import img_as_float, img_as_ubyte
 import mosaic as mo
 import random
-
+import matplotlib.pyplot as plt
 def dana():
     i = 0
     img_pan = os.listdir("imagenes/dana")
@@ -13,6 +13,7 @@ def dana():
     for pan in img_pan:
         lista_partes = os.listdir(f"imagenes/dana/{pan}")
         lista_partes.sort()
+        print(lista_partes)
         imagen_generada = 0 
         for i in range(len(lista_partes)):
             if(i==0):
@@ -20,6 +21,9 @@ def dana():
                 continue
             imagen_2 = cv.imread(f"imagenes/dana/{pan}/{lista_partes[i]}", cv.IMREAD_COLOR)
             imagen_generada = img_as_ubyte(mo.mosaico(imagen_2,imagen_generada))
+            cv.imwrite(f"resultados_dana/{pan}_iteracion{i}.png",imagen_generada)
+            plt.imshow(imagen_generada)
+            plt.show()
         
         
         cv.imwrite(f"resultados_dana/{pan}.png",imagen_generada)
