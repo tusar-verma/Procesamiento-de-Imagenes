@@ -66,8 +66,8 @@ def mati_thresh(i1,i2):
     M = max(m1,m2)
     N = max(n1,n2)
     
-    im1padd = -np.ones((M,N,3))
-    im2padd = -(1+thresh)*np.ones((M,N,3))
+    im1padd = -(1+thresh)*np.ones((M,N,3))
+    im2padd = -(1+2*thresh)*np.ones((M,N,3))
 
     im1padd[:m1,:n1,:] = i1
     im2padd[:m2,:n2,:] = i2
