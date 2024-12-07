@@ -19,8 +19,8 @@ def dana():
                 imagen_generada = cv.imread(f"imagenes/dana/{pan}/{lista_partes[i]}", cv.IMREAD_COLOR)
                 continue
             imagen_2 = cv.imread(f"imagenes/dana/{pan}/{lista_partes[i]}", cv.IMREAD_COLOR)
-            imagen_generada = mo.mosaico(imagen_2,imagen_generada)
+            imagen_generada = img_as_ubyte(mo.mosaico(imagen_2,imagen_generada))
         
-        imagen_generada = img_as_ubyte(imagen_generada)
+        
         cv.imwrite(f"resultados_dana/{pan}.png",imagen_generada)
 dana()
