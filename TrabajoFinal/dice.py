@@ -20,7 +20,7 @@ def mati_dice(i1,i2):
 
     im1padd[:m1,:n1,:] = i1
     im2padd[:m2,:n2,:] = i2
-    print(im1padd-im2padd)
+    
     bm =((im1padd[:,:,0] == im2padd[:,:,0]) & (im1padd[:,:,1] == im2padd[:,:,1]) & (im1padd[:,:,2] == im2padd[:,:,2]))
     dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
     return dice_coeff
