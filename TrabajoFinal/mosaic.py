@@ -396,14 +396,14 @@ def dice(imagen1, imagen2):
     im1padd[:m1,:n1,:] = imagen1
     im2padd[:m2,:n2,:] = imagen2
 
-    dicecoeff = 2*np.sum(im1padd==im2padd)/(3*m1*n1 + 3*m2*n2)
-
-    return dicecoeff
+    bm =((im1padd[:,:,0] == im2padd[:,:,0]) & (im1padd[:,:,1] == im2padd[:,:,1]) & (im1padd[:,:,2] == im2padd[:,:,2]))
+    dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
+    return dice_coeff
     
 def mosaico(imagen1,imagen2):
     #DSC_0308.png, DSC_0310.png
     #imagen2 = cv.imread("./imagenes/Cubo-Der.png", cv.IMREAD_COLOR)
-
+    #imagen2 = cv2.cvtColor(imagen2, cv2.COLOR_BGR2RGB)
     #imagen1 = cv.imread("./imagenes/Cubo-Izq.png", cv.IMREAD_COLOR)
 
     #Se obtiene la matriz de homografía

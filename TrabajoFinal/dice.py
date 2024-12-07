@@ -20,7 +20,7 @@ def mati_dice(i1,i2):
 
     im1padd[:m1,:n1,:] = i1
     im2padd[:m2,:n2,:] = i2
-
+    print(im1padd-im2padd)
     bm =((im1padd[:,:,0] == im2padd[:,:,0]) & (im1padd[:,:,1] == im2padd[:,:,1]) & (im1padd[:,:,2] == im2padd[:,:,2]))
     dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
     return dice_coeff
@@ -34,14 +34,15 @@ def dice_promedio():
         if(i < 61 ): #1999*0.03
             imagen_original = cv.imread(f"imagenes/Forest/{imagen}", cv.IMREAD_COLOR)
 
-            tres_cuarto = int(imagen_original.shape[1] * (3/4))
-            un_cuarto   = 1 - tres_cuarto
-
-            imagen_1 = imagen_original[0:imagen_original.shape[0],0:tres_cuarto+2]
-            imagen_2 = imagen_original[0:imagen_original.shape[0],un_cuarto:imagen_original.shape[1]]
+            dos_tercios = int(imagen_original.shape[1] * (2/3))
+            un_tercio   = imagen_original.shape[1] - dos_tercios
+            print(dos_tercios, un_tercio)
+            imagen_1 = imagen_original[0:imagen_original.shape[0],0:dos_tercios+1]
+            imagen_2 = imagen_original[0:imagen_original.shape[0],un_tercio:imagen_original.shape[1]]
             print(imagen_1.shape,imagen_2.shape,imagen_original.shape)
             imagen_generada = mo.mosaico(imagen_1,imagen_2)
-            cv.imwrite(f"{i}.png",img_as_ubyte(imagen_generada))
+            imagen_generada = img_as_ubyte(imagen_generada)
+            cv.imwrite(f"resultados_dice/{i}.png",imagen_generada)
             
             dice = mati_dice(imagen_generada,imagen_original)
             print(dice)
