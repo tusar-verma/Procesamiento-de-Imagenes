@@ -29,8 +29,8 @@ def obtener_esquinas(imagen):
     return esquinas
 
 
-def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q):
-    radio = 8
+def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q,radio):
+    
     puntos_con_mayor_corr = []
    
     for i in range(esquinas_p.shape[0]):
@@ -118,7 +118,7 @@ def getHomography(puntosP, puntosQ):
         H = H/h[8]
     return H
 
-def ransac(imagen1, imagen2):
+def ransac(imagen1, imagen2,radio,exigencia):
     imagen1bw = cv.cvtColor(imagen1, cv.COLOR_BGR2GRAY)
     imagen2bw = cv.cvtColor(imagen2, cv.COLOR_BGR2GRAY)
     imagen1bw = img_as_float(imagen1bw)
@@ -128,7 +128,7 @@ def ransac(imagen1, imagen2):
     esquinasQ = obtener_esquinas(imagen2bw)
 
     #Se filtran las esquinas, quedandonos con los pares con mayor correlación (forma q, p)
-    esquinasFiltradas = correlacion(esquinasP, esquinasQ, imagen1bw, imagen2bw)
+    esquinasFiltradas = correlacion(esquinasP, esquinasQ, imagen1bw, imagen2bw,radio)
 
     #visualizar_corr(imagen1bw, imagen2bw, esquinasFiltradas)
     #Se obtienen los puntos de partida P y los puntos de llegada Q en forma de lista
@@ -137,7 +137,7 @@ def ransac(imagen1, imagen2):
     
     
     tolerancia = 5 #Tolerancia con la que se considera que una Homografía es consistente para un par de puntos
-    minConsistentes = 0.9*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
+    minConsistentes = exigencia*puntosP.shape[0] #Mínima cantidad de esquinas que deben ser consistentes con una homografía
     maxIter = 10**6 #Cantidad máxima de iteraciones
     cantConsistentes = 0
     H = 0
@@ -400,7 +400,7 @@ def dice(imagen1, imagen2):
     dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
     return dice_coeff
     
-def mosaico(imagen1,imagen2):
+def mosaico(imagen1,imagen2,radio,exigencia):
     #DSC_0308.png, DSC_0310.png
     #imagen2 = cv.imread("./imagenes/Cubo-Der.png", cv.IMREAD_COLOR)
     #imagen2 = cv2.cvtColor(imagen2, cv2.COLOR_BGR2RGB)
@@ -408,7 +408,7 @@ def mosaico(imagen1,imagen2):
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
-    H = ransac(imagen1, imagen2)
+    H = ransac(imagen1, imagen2,radio,exigencia)
     print("--- Se obtuvo la matriz Homográfica ---")
 
     #Se aplica warping recuperando el offset y la imagen1 "warpeada"
