@@ -76,14 +76,14 @@ def mati_thresh(i1,i2):
     dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
     return dice_coeff
 
-def thresholding():
+def thresholding(radio,exigencia):
     i = 0
     coef_dice = 0
-    lista_coef = open("resultados.txt","w")
+    lista_coef = open(f"resultados_{radio}_{exigencia}.txt","w")
     for imagen in os.listdir("imagenes/Forest"):
         
         #leeo la imagen
-        if(i < 61 ): #1999*0.03
+        if(i < 30 ): #1999*0.03
             lista_coef.write(f"{imagen}:")
             imagen_original = cv.imread(f"imagenes/Forest/{imagen}", cv.IMREAD_COLOR)
             mitad = int(imagen_original.shape[1] * (1/2)) +17
@@ -92,17 +92,17 @@ def thresholding():
             #dos_tercios = int(imagen_original.shape[1] * porcion)
             dos_tercios = porcion
             un_tercio   = imagen_original.shape[1] - dos_tercios
-            print(dos_tercios, un_tercio)
+            
             imagen_1 = imagen_original[0:imagen_original.shape[0],0:dos_tercios+1]
             imagen_2 = imagen_original[0:imagen_original.shape[0],un_tercio:imagen_original.shape[1]]
-            print(imagen_1.shape,imagen_2.shape,imagen_original.shape)
-            imagen_generada = mo.mosaico(imagen_1,imagen_2)
+            
+            imagen_generada = mo.mosaico(imagen_1,imagen_2,radio,exigencia)
             imagen_generada = img_as_ubyte(imagen_generada)
             cv.imwrite(f"resultados_dice/{i}.png",imagen_generada)
             
             dice = mati_thresh(imagen_generada,imagen_original)
             lista_coef.write(f"{dice}\n")
-            print(dice)
+            
             coef_dice += dice
             i+=1
             
@@ -111,5 +111,11 @@ def thresholding():
     lista_coef.write(f"promedio:{coef_dice}")
     return coef_dice
 
-thresholding()
+list_ventana = [1,3,5,10]
+list_exigencia = [0.7,0.8,0.9]
+matri_res = np.zeros([len(list_ventana),len(list_exigencia),1]) 
+
+for i in list_ventana:
+    for j in list_exigencia:
+        thresholding(i,j)
 
