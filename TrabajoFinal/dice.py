@@ -79,10 +79,12 @@ def mati_thresh(i1,i2):
 def thresholding():
     i = 0
     coef_dice = 0
+    lista_coef = open("resultados.txt","w")
     for imagen in os.listdir("imagenes/Forest"):
         
         #leeo la imagen
         if(i < 61 ): #1999*0.03
+            lista_coef.write(f"{imagen}:")
             imagen_original = cv.imread(f"imagenes/Forest/{imagen}", cv.IMREAD_COLOR)
             mitad = int(imagen_original.shape[1] * (1/2)) +17
             porcion = random.randint(mitad, imagen_original.shape[1])
@@ -98,13 +100,16 @@ def thresholding():
             imagen_generada = img_as_ubyte(imagen_generada)
             cv.imwrite(f"resultados_dice/{i}.png",imagen_generada)
             
-            dice = mati_dice(imagen_generada,imagen_original)
+            dice = mati_thresh(imagen_generada,imagen_original)
+            lista_coef.write(f"{dice}\n")
             print(dice)
             coef_dice += dice
             i+=1
             
 
     coef_dice = coef_dice / i
+    lista_coef.write(f"promedio:{coef_dice}")
     return coef_dice
 
-print(thresholding())
+thresholding()
+
