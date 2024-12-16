@@ -29,7 +29,7 @@ def obtener_esquinas(imagen):
     return esquinas
 
 
-def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q,radio):
+def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q,radio,cc):
     
     puntos_con_mayor_corr = []
    
@@ -59,12 +59,12 @@ def correlacion(esquinas_p, esquinas_q, imagen_p, imagen_q,radio):
 
             coef_corr = coef_corr_nom/np.sqrt(coef_corr_den_p * coef_corr_den_q)
 
-            if(coef_corr > 0.8):
+            if(coef_corr > cc):
                 if(max_corr < coef_corr):
                     max_corr = coef_corr
                     mejor_esquina = esquina_q
         
-        if(max_corr > 0.80):
+        if(max_corr > cc):
             puntos_con_mayor_corr.append([esquina_p,mejor_esquina])
     
     puntos_con_mayor_corr = np.array(puntos_con_mayor_corr)
@@ -118,7 +118,7 @@ def getHomography(puntosP, puntosQ):
         H = H/h[8]
     return H
 
-def ransac(imagen1, imagen2,radio,exigencia):
+def ransac(imagen1, imagen2,radio,exigencia,cc):
     imagen1bw = cv.cvtColor(imagen1, cv.COLOR_BGR2GRAY)
     imagen2bw = cv.cvtColor(imagen2, cv.COLOR_BGR2GRAY)
     imagen1bw = img_as_float(imagen1bw)
@@ -128,7 +128,7 @@ def ransac(imagen1, imagen2,radio,exigencia):
     esquinasQ = obtener_esquinas(imagen2bw)
 
     #Se filtran las esquinas, quedandonos con los pares con mayor correlación (forma q, p)
-    esquinasFiltradas = correlacion(esquinasP, esquinasQ, imagen1bw, imagen2bw,radio)
+    esquinasFiltradas = correlacion(esquinasP, esquinasQ, imagen1bw, imagen2bw,radio,cc)
 
     #visualizar_corr(imagen1bw, imagen2bw, esquinasFiltradas)
     #Se obtienen los puntos de partida P y los puntos de llegada Q en forma de lista
@@ -400,7 +400,7 @@ def dice(imagen1, imagen2):
     dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
     return dice_coeff
     
-def mosaico(imagen1,imagen2,radio,exigencia):
+def mosaico(imagen1,imagen2,radio,exigencia,cc):
     #DSC_0308.png, DSC_0310.png
     #imagen2 = cv.imread("./imagenes/Cubo-Der.png", cv.IMREAD_COLOR)
     #imagen2 = cv2.cvtColor(imagen2, cv2.COLOR_BGR2RGB)
@@ -408,7 +408,7 @@ def mosaico(imagen1,imagen2,radio,exigencia):
 
     #Se obtiene la matriz de homografía
     print("Calculando matriz Homográfica ... ")
-    H = ransac(imagen1, imagen2,radio,exigencia)
+    H = ransac(imagen1, imagen2,radio,exigencia,cc)
     print("--- Se obtuvo la matriz Homográfica ---")
 
     #Se aplica warping recuperando el offset y la imagen1 "warpeada"

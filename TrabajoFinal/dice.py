@@ -5,6 +5,8 @@ from skimage import feature
 from skimage import img_as_float, img_as_ubyte
 import mosaic as mo
 import random
+import matplotlib.pyplot as plt
+
 
 def mati_dice(i1,i2):
     m1 = i1.shape[0]
@@ -76,7 +78,7 @@ def mati_thresh(i1,i2):
     dice_coeff = np.sum(bm)/(im1padd.shape[0]*im2padd.shape[1])
     return dice_coeff
 
-def thresholding(radio,exigencia):
+def thresholding(radio,exigencia,cc):
     i = 0
     coef_dice = 0
     lista_coef = open(f"resultados_{radio}_{exigencia}.txt","w")
@@ -90,13 +92,13 @@ def thresholding(radio,exigencia):
             porcion = random.randint(mitad, imagen_original.shape[1])
 
             #dos_tercios = int(imagen_original.shape[1] * porcion)
-            dos_tercios = porcion
+            dos_tercios = int(imagen_original.shape[1] * (2/3))
             un_tercio   = imagen_original.shape[1] - dos_tercios
             
             imagen_1 = imagen_original[0:imagen_original.shape[0],0:dos_tercios+1]
             imagen_2 = imagen_original[0:imagen_original.shape[0],un_tercio:imagen_original.shape[1]]
             
-            imagen_generada = mo.mosaico(imagen_1,imagen_2,radio,exigencia)
+            imagen_generada = mo.mosaico(imagen_1,imagen_2,radio,exigencia,cc)
             imagen_generada = img_as_ubyte(imagen_generada)
             cv.imwrite(f"resultados_dice/{i}.png",imagen_generada)
             
@@ -113,9 +115,19 @@ def thresholding(radio,exigencia):
 
 list_ventana = [1,3,5,10]
 list_exigencia = [0.7,0.8,0.9]
-matri_res = np.zeros([len(list_ventana),len(list_exigencia),1]) 
+list_coefCorr = [0.5, 0.7, 0.8, 0.9]
+matri_res = np.zeros((len(list_ventana),len(list_exigencia), len(list_coefCorr ))) 
+res_mat = open(f"resultados_matri_res.txt","w")
 
-for i in list_ventana:
-    for j in list_exigencia:
-        thresholding(i,j)
+for i in range(len(list_ventana)):
+    for j in range(len(list_exigencia)):
+        for k in range(len(list_coefCorr)):
+            matri_res[i,j,k] = thresholding(list_ventana[i],list_exigencia[j], list_coefCorr[k])
+            res_mat.write(str(matri_res[i,j,k])+" ")
+        res_mat.write("\n")
+    res_mat.write("\n")
 
+
+plt.imshow(matri_res)
+plt.colorbar()
+plt.show()
